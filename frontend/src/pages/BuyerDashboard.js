@@ -15,6 +15,7 @@ import {
   Box,
   Container,
   Paper,
+  Notification,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -22,6 +23,7 @@ import {
   IconLogout,
   IconQrcode,
   IconLink,
+  IconCheck,
   IconShield,
   IconTransfer,
   IconTools,
@@ -31,23 +33,31 @@ import HeaderComponent from "../components/Header";
 import CustomNavbar from "../components/Buyer/Sidebar";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
+import TransferModal from "../components/Buyer/TransferModal";
+import NFTTransferPage from "./NFT Transfer/NFTTransferPage";
+import OwnershipOverviewPage from "./Ownership/OwnershipOverviewPage";
+import TransferredPage from "./Ownership/TransferredPage";
+import ReceivedPage from "./Ownership/ReceivedPage";
 
 const BuyerDashboard = () => {
   const theme = useMantineTheme();
-  const [activeTab, setActiveTab] = useState("warranty-list");
+  const [activeTab, setActiveTab] = useState("ownership-overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [showQRModal, setShowQRModal] = useState(false);
   const [showURLModal, setShowURLModal] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferNotification, setTransferNotification] = useState(null);
 
-  // Updated Mock data for warranties with realistic structure
-  const [warranties] = useState([
+  // Updated Mock data for warranties with realistic structure and transfer status
+  const [warranties, setWarranties] = useState([
     {
       id: 1,
       serialNo: "WR-2024-001",
       productName: "iPhone 15 Pro",
       purchaseDate: "2024-01-15",
       warrantyPeriod: 365,
+      transferStatus: "owned",
       repairHistory: [
         {
           id: 1,
@@ -64,6 +74,10 @@ const BuyerDashboard = () => {
       productName: "MacBook Air M2",
       purchaseDate: "2024-06-15",
       warrantyPeriod: 730,
+      transferStatus: "transferred",
+      transferredTo:
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      transferredDate: "2024-12-01",
       repairHistory: [],
     },
     {
@@ -72,6 +86,10 @@ const BuyerDashboard = () => {
       productName: "Samsung Galaxy S24",
       purchaseDate: "2023-12-01",
       warrantyPeriod: 365,
+      transferStatus: "received",
+      transferredFrom:
+        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      transferredDate: "2024-11-15",
       repairHistory: [
         {
           id: 1,
@@ -92,9 +110,10 @@ const BuyerDashboard = () => {
     {
       id: 4,
       serialNo: "WR-2024-004",
-      productName: "Dell XPS 13",
+      productName: "iPad Pro 12.9",
       purchaseDate: "2024-09-20",
       warrantyPeriod: 1095,
+      transferStatus: "owned",
       repairHistory: [],
     },
   ]);
@@ -154,6 +173,56 @@ const BuyerDashboard = () => {
   const handleGenerateURL = (warranty) => {
     setSelectedWarranty(warranty);
     setShowURLModal(true);
+  };
+
+  // Handle transfer initiation
+  const handleTransferNFT = (warranty) => {
+    setSelectedWarranty(warranty);
+    setShowTransferModal(true);
+  };
+
+  // Handle actual transfer
+  const handleTransfer = async (warranty, recipientAddress) => {
+    // This is where you'll integrate with SUI wallet
+    // For now, we'll simulate the transfer
+    console.log(
+      "Transferring NFT:",
+      warranty.serialNo,
+      "to:",
+      recipientAddress
+    );
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Update warranty transfer status in state
+    setWarranties((prevWarranties) =>
+      prevWarranties.map((w) =>
+        w.id === warranty.id
+          ? {
+              ...w,
+              transferStatus: "transferred",
+              transferredTo: recipientAddress,
+              transferredDate: new Date().toISOString().split("T")[0],
+            }
+          : w
+      )
+    );
+
+    // Show success notification
+    setTransferNotification({
+      type: "success",
+      title: "Transfer Successful",
+      message: `NFT for ${
+        warranty.productName
+      } has been transferred to ${recipientAddress.slice(
+        0,
+        10
+      )}...${recipientAddress.slice(-8)}`,
+    });
+
+    // Remove notification after 5 seconds
+    setTimeout(() => setTransferNotification(null), 5000);
   };
 
   // Warranty list table
@@ -270,10 +339,48 @@ const BuyerDashboard = () => {
 
         {/* Main Content Area */}
         <div style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
-          <Container size="xl">
-            {activeTab === "warranty-list" && <WarrantyListTable />}
-            {activeTab === "transfer-nft" && <WarrantyListTable />}
-          </Container>
+          {activeTab === "warranty-list" && <WarrantyListTable />}
+          {activeTab === "ownership-overview" && (
+            <OwnershipOverviewPage
+              warranties={filteredWarranties}
+              calculateWarrantyInfo={calculateWarrantyInfo}
+              getCountdownText={getCountdownText}
+              formatDate={formatDate}
+              handleGenerateQR={handleGenerateQR}
+              handleGenerateURL={handleGenerateURL}
+            />
+          )}
+          {activeTab === "transfer-nft" && (
+            <NFTTransferPage
+              warranties={warranties}
+              calculateWarrantyInfo={calculateWarrantyInfo}
+              getCountdownText={getCountdownText}
+              formatDate={formatDate}
+              handleGenerateQR={handleGenerateQR}
+              handleGenerateURL={handleGenerateURL}
+              handleTransferNFT={handleTransferNFT}
+            />
+          )}
+          {activeTab === "transferred" && (
+            <TransferredPage
+              warranties={filteredWarranties}
+              calculateWarrantyInfo={calculateWarrantyInfo}
+              getCountdownText={getCountdownText}
+              formatDate={formatDate}
+              handleGenerateQR={handleGenerateQR}
+              handleGenerateURL={handleGenerateURL}
+            />
+          )}
+          {activeTab === "received" && (
+            <ReceivedPage
+              warranties={filteredWarranties}
+              calculateWarrantyInfo={calculateWarrantyInfo}
+              getCountdownText={getCountdownText}
+              formatDate={formatDate}
+              handleGenerateQR={handleGenerateQR}
+              handleGenerateURL={handleGenerateURL}
+            />
+          )}
         </div>
 
         {/* Footer */}
@@ -291,6 +398,33 @@ const BuyerDashboard = () => {
         onClose={() => setShowURLModal(false)}
         selectedWarranty={selectedWarranty}
       />
+      <TransferModal
+        opened={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        selectedWarranty={selectedWarranty}
+        onTransfer={handleTransfer}
+      />
+
+      {/* Transfer Notification */}
+      {transferNotification && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: 1000,
+          }}
+        >
+          <Notification
+            icon={<IconCheck size={16} />}
+            color="green"
+            title={transferNotification.title}
+            onClose={() => setTransferNotification(null)}
+          >
+            {transferNotification.message}
+          </Notification>
+        </div>
+      )}
     </div>
   );
 };
