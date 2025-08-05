@@ -27,7 +27,7 @@ const ReceivedPage = ({
     <Container size="xl">
       <Paper shadow="xs" p="md">
         <Title order={4} mb="md">
-          Received Warranties
+          Received NFTs
         </Title>
         <Table>
           <Table.Thead>

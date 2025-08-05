@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Group, Box, Collapse, UnstyledButton, rem } from "@mantine/core";
+import { Group, Box, Collapse, UnstyledButton} from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 
 export function LinksGroup({
@@ -76,7 +76,15 @@ export function LinksGroup({
       >
         <Group gap="sm">
           <Icon size={20} />
-          <span>{label}</span>
+          <span
+            style={{
+              fontSize: "16px",
+              color: "#495057", 
+              fontWeight: isActive ? 600 : 500,
+            }}
+          >
+            {label}
+          </span>
         </Group>
         {hasLinks && (
           <IconChevronRight

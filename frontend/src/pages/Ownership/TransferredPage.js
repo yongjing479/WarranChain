@@ -27,7 +27,7 @@ const TransferredPage = ({
     <Container size="xl">
       <Paper shadow="xs" p="md">
         <Title order={4} mb="md">
-          Transferred Warranties
+          Transferred NFTs
         </Title>
         <Table>
           <Table.Thead>

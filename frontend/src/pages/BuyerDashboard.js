@@ -1,31 +1,18 @@
 import React, { useState } from "react";
 import {
   Text,
-  useMantineTheme,
   Group,
-  ActionIcon,
-  TextInput,
-  Avatar,
   Badge,
   Button,
   Table,
-  Modal,
   Title,
-  Stack,
-  Box,
-  Container,
   Paper,
   Notification,
 } from "@mantine/core";
 import {
-  IconSearch,
-  IconBell,
-  IconLogout,
   IconQrcode,
   IconLink,
   IconCheck,
-  IconShield,
-  IconTransfer,
   IconTools,
 } from "@tabler/icons-react";
 import FooterComponent from "../components/Footer";
@@ -40,7 +27,6 @@ import TransferredPage from "./Ownership/TransferredPage";
 import ReceivedPage from "./Ownership/ReceivedPage";
 
 const BuyerDashboard = () => {
-  const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState("ownership-overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [showQRModal, setShowQRModal] = useState(false);
@@ -265,6 +251,7 @@ const BuyerDashboard = () => {
                 </Table.Td>
                 <Table.Td>
                   <Text
+                  size="sm"
                     c={
                       warrantyInfo.daysLeft < 0
                         ? "red"
@@ -331,13 +318,11 @@ const BuyerDashboard = () => {
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <CustomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Main Content */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* Header */}
-        <HeaderComponent />
-
-        {/* Main Content Area */}
+        <HeaderComponent
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
         <div style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
           {activeTab === "warranty-list" && <WarrantyListTable />}
           {activeTab === "ownership-overview" && (
@@ -382,12 +367,8 @@ const BuyerDashboard = () => {
             />
           )}
         </div>
-
-        {/* Footer */}
         <FooterComponent />
       </div>
-
-      {/* Modals */}
       <QRCodeModal
         opened={showQRModal}
         onClose={() => setShowQRModal(false)}
@@ -404,8 +385,6 @@ const BuyerDashboard = () => {
         selectedWarranty={selectedWarranty}
         onTransfer={handleTransfer}
       />
-
-      {/* Transfer Notification */}
       {transferNotification && (
         <div
           style={{

@@ -13,11 +13,11 @@ const Footer = () => {
     >
       <Group justify="space-between">
         <Text size="sm" c="dimmed">
-          © 2024 WarrantyChain. All rights reserved.
+          © 2025 WarranChain. All rights reserved.
         </Text>
         <Group gap="xs">
           <Text size="sm" c="dimmed">
-            Powered by Blockchain Technology
+            Powered by Blockchain Team
           </Text>
         </Group>
       </Group>

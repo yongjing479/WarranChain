@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";  
 import {
   Text,
   Group,
@@ -77,6 +77,7 @@ const NFTTransferPage = ({
                     </Table.Td>
                     <Table.Td>
                       <Text
+                      size="sm"
                         c={
                           warrantyInfo.daysLeft < 0
                             ? "red"

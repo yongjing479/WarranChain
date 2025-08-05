@@ -1,10 +1,9 @@
 import React from "react";
-import { Group, Text, ScrollArea } from "@mantine/core";
+import { Group, Text, ScrollArea, ActionIcon } from "@mantine/core";
 import {
   IconShield,
   IconTransfer,
-  IconDownload,
-  IconHistory,
+  IconLogout,
 } from "@tabler/icons-react";
 import { LinksGroup } from "./LinksGroup";
 
@@ -22,8 +21,8 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
       links: [
         { label: "Overview", link: "ownership-overview" },
         { label: "Transfer NFT", link: "transfer-nft" },
-        { label: "Transferred", link: "transferred" },
-        { label: "Received", link: "received" },
+        { label: "Transferred NFTs", link: "transferred" },
+        { label: "Received NFTs", link: "received" },
       ],
     },
   ];
@@ -52,7 +51,7 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
       <div className="header" style={{ marginBottom: "2rem" }}>
         <Group justify="space-between">
           <Text size="lg" fw={700} c="blue">
-            Buyer Dashboard
+            WarranChain
           </Text>
         </Group>
       </div>
@@ -63,12 +62,36 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
 
       <div
         style={{
+          marginTop: "1rem",
+          marginBottom: "1rem",
+          padding: "0.5rem 0.75rem",
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          cursor: "pointer",
+          color: "red",
+          transition: "background-color 0.2s",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff5f5")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+      >
+        <ActionIcon variant="transparent" color="red" size="lg" aria-label="Logout">
+          <IconLogout size={20} />
+        </ActionIcon>
+        <Text size="md" fw={500}>
+          Logout
+        </Text>
+      </div>
+
+      <div
+        style={{
           borderTop: "1px solid #dee2e6",
-          paddingTop: "1rem",
+          paddingTop: "1.5rem",
         }}
       >
         <Text size="sm" c="dimmed" ta="center">
-          WarrantyChain v1.0
+          WarranChain v1.0
         </Text>
       </div>
     </nav>
