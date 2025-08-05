@@ -34,7 +34,7 @@ import CustomNavbar from "../components/Buyer/Sidebar";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
 import TransferModal from "../components/Buyer/TransferModal";
-import NFTTransferPage from "./NFT Transfer/NFTTransferPage";
+import NFTTransferPage from "./Ownership/NFTTransferPage";
 import OwnershipOverviewPage from "./Ownership/OwnershipOverviewPage";
 import TransferredPage from "./Ownership/TransferredPage";
 import ReceivedPage from "./Ownership/ReceivedPage";
