@@ -26,6 +26,11 @@ import {
   IconTransfer,
   IconTools,
 } from "@tabler/icons-react";
+import FooterComponent from "../components/Footer";
+import HeaderComponent from "../components/Header";
+import CustomNavbar from "../components/Buyer/Sidebar";
+import QRCodeModal from "../components/Buyer/QRCodeModal";
+import URLModal from "../components/Buyer/URLModal";
 
 const BuyerDashboard = () => {
   const theme = useMantineTheme();
@@ -42,7 +47,7 @@ const BuyerDashboard = () => {
       serialNo: "WR-2024-001",
       productName: "iPhone 15 Pro",
       purchaseDate: "2024-01-15",
-      warrantyPeriod: 365, 
+      warrantyPeriod: 365,
       repairHistory: [
         {
           id: 1,
@@ -58,7 +63,7 @@ const BuyerDashboard = () => {
       serialNo: "WR-2024-002",
       productName: "MacBook Air M2",
       purchaseDate: "2024-06-15",
-      warrantyPeriod: 730, 
+      warrantyPeriod: 730,
       repairHistory: [],
     },
     {
@@ -66,7 +71,7 @@ const BuyerDashboard = () => {
       serialNo: "WR-2023-003",
       productName: "Samsung Galaxy S24",
       purchaseDate: "2023-12-01",
-      warrantyPeriod: 365, 
+      warrantyPeriod: 365,
       repairHistory: [
         {
           id: 1,
@@ -89,7 +94,7 @@ const BuyerDashboard = () => {
       serialNo: "WR-2024-004",
       productName: "Dell XPS 13",
       purchaseDate: "2024-09-20",
-      warrantyPeriod: 1095, 
+      warrantyPeriod: 1095,
       repairHistory: [],
     },
   ]);
@@ -110,6 +115,7 @@ const BuyerDashboard = () => {
     };
   };
 
+  // Filter warranties based on search query
   const filteredWarranties = warranties.filter(
     (warranty) =>
       warranty.serialNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,135 +154,6 @@ const BuyerDashboard = () => {
   const handleGenerateURL = (warranty) => {
     setSelectedWarranty(warranty);
     setShowURLModal(true);
-  };
-
-  // Navigation data
-  const navData = [
-    { link: "warranty-list", label: "Warranty List", icon: IconShield },
-    { link: "transfer-nft", label: "Transfer NFT", icon: IconTransfer },
-  ];
-
-  // Header component
-  const HeaderComponent = () => (
-    <Box
-      style={{
-        height: 70,
-        padding: "1rem",
-        borderBottom: `1px solid ${theme.colors.gray[3]}`,
-        backgroundColor: theme.white,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-        <Group justify="space-between" style={{ flex: 1 }}>
-          <Title order={3} c="blue">
-            WarrantyChain
-          </Title>
-
-          <Group gap="md">
-            <TextInput
-              placeholder="Search serial number or product name..."
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.currentTarget.value)}
-              style={{ width: 300 }}
-            />
-
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label="Notifications"
-            >
-              <IconBell size={20} />
-            </ActionIcon>
-
-            <Avatar
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-              size="md"
-              radius="xl"
-            />
-
-            <ActionIcon
-              variant="subtle"
-              color="red"
-              size="lg"
-              aria-label="Logout"
-            >
-              <IconLogout size={20} />
-            </ActionIcon>
-          </Group>
-        </Group>
-      </div>
-    </Box>
-  );
-
-  const CustomNavbar = () => {
-    const links = navData.map((item) => {
-      const Icon = item.icon;
-      return (
-        <button
-          key={item.label}
-          onClick={() => setActiveTab(item.link)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 16px",
-            textDecoration: "none",
-            color:
-              activeTab === item.link
-                ? theme.colors.blue[6]
-                : theme.colors.gray[7],
-            backgroundColor:
-              activeTab === item.link ? theme.colors.blue[0] : "transparent",
-            borderRadius: "8px",
-            marginBottom: "4px",
-            fontWeight: activeTab === item.link ? 600 : 400,
-            transition: "all 0.2s ease",
-            border: "none",
-            cursor: "pointer",
-            width: "100%",
-            textAlign: "left",
-          }}
-        >
-          <Icon size={20} style={{ marginRight: "12px" }} />
-          <span>{item.label}</span>
-        </button>
-      );
-    });
-
-    return (
-      <nav
-        style={{
-          width: 300,
-          height: "100vh",
-          backgroundColor: theme.white,
-          borderRight: `1px solid ${theme.colors.gray[3]}`,
-          padding: "1rem",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ flex: 1 }}>
-          <Group justify="space-between" style={{ marginBottom: "2rem" }}>
-            <Text size="lg" fw={700} c="blue">
-              Buyer Dashboard
-            </Text>
-          </Group>
-          {links}
-        </div>
-
-        <div
-          style={{
-            borderTop: `1px solid ${theme.colors.gray[3]}`,
-            paddingTop: "1rem",
-          }}
-        >
-          <Text size="sm" c="dimmed" ta="center">
-            WarrantyChain v1.0
-          </Text>
-        </div>
-      </nav>
-    );
   };
 
   // Warranty list table
@@ -382,94 +259,9 @@ const BuyerDashboard = () => {
     </Paper>
   );
 
-  // QR Code Modal
-  const QRCodeModal = () => (
-    <Modal
-      opened={showQRModal}
-      onClose={() => setShowQRModal(false)}
-      title="QR Code"
-      size="sm"
-    >
-      <Stack align="center" gap="md">
-        <Box
-          style={{
-            width: 200,
-            height: 200,
-            backgroundColor: "#f8f9fa",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "2px dashed #dee2e6",
-            borderRadius: 8,
-          }}
-        >
-          <Text c="dimmed" size="sm">
-            QR Code Placeholder
-          </Text>
-        </Box>
-        <Text size="sm" c="dimmed" ta="center">
-          Serial: {selectedWarranty?.serialNo}
-        </Text>
-        <Button fullWidth onClick={() => setShowQRModal(false)}>
-          Close
-        </Button>
-      </Stack>
-    </Modal>
-  );
-
-  // URL Modal
-  const URLModal = () => (
-    <Modal
-      opened={showURLModal}
-      onClose={() => setShowURLModal(false)}
-      title="Warranty URL"
-      size="md"
-    >
-      <Stack gap="md">
-        <Text size="sm">Share this URL to verify warranty status:</Text>
-        <TextInput
-          value={`https://warrantychain.com/verify/${selectedWarranty?.serialNo}`}
-          readOnly
-          rightSection={
-            <Button size="xs" variant="light">
-              Copy
-            </Button>
-          }
-        />
-        <Button fullWidth onClick={() => setShowURLModal(false)}>
-          Close
-        </Button>
-      </Stack>
-    </Modal>
-  );
-
-  // Footer component
-  const FooterComponent = () => (
-    <Box
-      style={{
-        height: 60,
-        padding: "1rem",
-        borderTop: `1px solid ${theme.colors.gray[3]}`,
-        backgroundColor: theme.white,
-      }}
-    >
-      <Group justify="space-between">
-        <Text size="sm" c="dimmed">
-          © 2024 WarrantyChain. All rights reserved.
-        </Text>
-        <Group gap="xs">
-          <Text size="sm" c="dimmed">
-            Powered by Blockchain Technology
-          </Text>
-        </Group>
-      </Group>
-    </Box>
-  );
-
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      {/* Custom Navbar */}
-      <CustomNavbar />
+      <CustomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -489,8 +281,16 @@ const BuyerDashboard = () => {
       </div>
 
       {/* Modals */}
-      <QRCodeModal />
-      <URLModal />
+      <QRCodeModal
+        opened={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        selectedWarranty={selectedWarranty}
+      />
+      <URLModal
+        opened={showURLModal}
+        onClose={() => setShowURLModal(false)}
+        selectedWarranty={selectedWarranty}
+      />
     </div>
   );
 };
