@@ -4,6 +4,7 @@ import { MantineProvider, createTheme } from "@mantine/core";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BuyerDashboard from "./pages/BuyerDashboard.js";
 import PublicWarrantyDetails from "./pages/PublicWarrantyDetails.js";
+import { MockWalletProvider } from "./contexts/MockWalletContext.js";
 
 const theme = createTheme({
   // Customize your theme here
@@ -12,14 +13,16 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme}>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<BuyerDashboard />} />
-            <Route path="/verify/:warrantyId" element={<PublicWarrantyDetails />} />
-          </Routes>
-        </div>
-      </Router>
+      <MockWalletProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<BuyerDashboard />} />
+              <Route path="/verify/:warrantyId" element={<PublicWarrantyDetails />} />
+            </Routes>
+          </div>
+        </Router>
+      </MockWalletProvider>
     </MantineProvider>
   );
 }
