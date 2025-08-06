@@ -18,6 +18,7 @@ const TransferredPage = ({
   formatDate,
   handleGenerateQR,
   handleGenerateURL,
+  handleViewWarrantyDetails,
 }) => {
   const transferredWarranties = warranties.filter(
     (w) => w.transferStatus === "transferred"
@@ -72,6 +73,13 @@ const TransferredPage = ({
                       onClick={() => handleGenerateURL(warranty)}
                     >
                       URL
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="light"
+                      onClick={() => handleViewWarrantyDetails(warranty)}
+                    >
+                      Details
                     </Button>
                   </Group>
                 </Table.Td>

@@ -1,11 +1,11 @@
 import React from "react";
-import { Modal, Stack, Text, TextInput, Button, Tooltip } from "@mantine/core";
-import { IconCheck, IconCopy } from "@tabler/icons-react";
+import { Modal, Stack, Text, TextInput, Button, Tooltip, Group } from "@mantine/core";
+import { IconCheck, IconCopy, IconEye } from "@tabler/icons-react";
 import { useClipboard } from "@mantine/hooks";
 
 const URLModal = ({ opened, onClose, selectedWarranty }) => {
   const clipboard = useClipboard({ timeout: 2000 });
-  const warrantyURL = `https://warrantychain.com/verify/${selectedWarranty?.serialNo}`;
+  const warrantyURL = `${window.location.origin}/verify/${selectedWarranty?.serialNo}`;
 
   return (
     <Modal opened={opened} onClose={onClose} title="Warranty URL" size="md">
@@ -46,9 +46,19 @@ const URLModal = ({ opened, onClose, selectedWarranty }) => {
           rightSectionWidth={90}
         />
 
-        <Button fullWidth onClick={onClose}>
-          Close
-        </Button>
+        <Group gap="sm">
+          <Button
+            fullWidth
+            leftSection={<IconEye size={16} />}
+            variant="light"
+            onClick={() => window.open(warrantyURL, '_blank')}
+          >
+            View Public Page
+          </Button>
+          <Button fullWidth onClick={onClose}>
+            Close
+          </Button>
+        </Group>
       </Stack>
     </Modal>
   );

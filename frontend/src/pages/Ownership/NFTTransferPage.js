@@ -1,4 +1,4 @@
-import React from "react";  
+import React from "react";
 import {
   Text,
   Group,
@@ -25,20 +25,20 @@ const NFTTransferPage = ({
   handleGenerateURL,
   handleTransferNFT,
 }) => {
-  // Filter warranties to only show those that are currently owned
-  const ownedWarranties = warranties.filter(
-    (w) => w.transferStatus === "owned" || !w.transferStatus
+  // Filter warranties to show both owned and received NFTs (can be transferred)
+  const transferableWarranties = warranties.filter(
+    (w) => w.transferStatus === "owned" || w.transferStatus === "received"
   );
 
   return (
     <Container size="xl">
       <Paper shadow="xs" p="md">
         <Title order={4} mb="md">
-          Transfer NFT - Owned Products
+          Transfer NFT - Available Products
         </Title>
-        {ownedWarranties.length === 0 ? (
+        {transferableWarranties.length === 0 ? (
           <Text c="dimmed" ta="center" py="xl">
-            No owned products available for transfer.
+            No products available for transfer.
           </Text>
         ) : (
           <Table>
@@ -46,25 +46,45 @@ const NFTTransferPage = ({
               <Table.Tr>
                 <Table.Th>Serial No</Table.Th>
                 <Table.Th>Product Name</Table.Th>
-                <Table.Th>Purchase Date</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Countdown</Table.Th>
+                <Table.Th>Ownership Status</Table.Th>
+                <Table.Th>Warranty Status</Table.Th>
                 <Table.Th>Repairs</Table.Th>
                 <Table.Th>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {ownedWarranties.map((warranty) => {
+              {transferableWarranties.map((warranty) => {
                 const warrantyInfo = calculateWarrantyInfo(warranty);
+
+                const getOwnershipBadge = () => {
+                  if (warranty.transferStatus === "received") {
+                    return (
+                      <Badge color="green" variant="light">
+                        Received
+                      </Badge>
+                    );
+                  } else if (warranty.transferStatus === "owned") {
+                    return (
+                      <Badge color="blue" variant="light">
+                        Owned
+                      </Badge>
+                    );
+                  } else {
+                    return (
+                      <Badge color="gray" variant="light">
+                        Unknown
+                      </Badge>
+                    );
+                  }
+                };
+
                 return (
                   <Table.Tr key={warranty.id}>
                     <Table.Td>
                       <Text fw={500}>{warranty.serialNo}</Text>
                     </Table.Td>
                     <Table.Td>{warranty.productName}</Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{formatDate(warranty.purchaseDate)}</Text>
-                    </Table.Td>
+                    <Table.Td>{getOwnershipBadge()}</Table.Td>
                     <Table.Td>
                       <Badge
                         color={
@@ -72,23 +92,8 @@ const NFTTransferPage = ({
                         }
                         variant="light"
                       >
-                        {warrantyInfo.status}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text
-                      size="sm"
-                        c={
-                          warrantyInfo.daysLeft < 0
-                            ? "red"
-                            : warrantyInfo.daysLeft < 30
-                            ? "orange"
-                            : "green"
-                        }
-                        fw={500}
-                      >
                         {getCountdownText(warrantyInfo.daysLeft)}
-                      </Text>
+                      </Badge>
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs">

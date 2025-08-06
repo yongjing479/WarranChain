@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Group, Box, Collapse, UnstyledButton} from "@mantine/core";
-import { IconChevronRight } from "@tabler/icons-react";
+// Temporarily comment out the problematic import
+// import { IconChevronRight } from "@tabler/icons-react";
 
 export function LinksGroup({
   icon: Icon,
@@ -87,13 +88,15 @@ export function LinksGroup({
           </span>
         </Group>
         {hasLinks && (
-          <IconChevronRight
-            size={16}
+          <span
             style={{
               transform: opened ? "rotate(90deg)" : "rotate(0deg)",
               transition: "transform 0.2s ease",
+              fontSize: "12px",
             }}
-          />
+          >
+            ▶
+          </span>
         )}
       </UnstyledButton>
       {hasLinks ? <Collapse in={opened}>{items}</Collapse> : null}

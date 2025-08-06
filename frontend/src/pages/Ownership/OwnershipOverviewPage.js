@@ -28,6 +28,7 @@ const OwnershipOverviewPage = ({
   formatDate,
   handleGenerateQR,
   handleGenerateURL,
+  handleViewWarrantyDetails,
 }) => {
   const ownedWarranties = warranties.filter(
     (w) => w.transferStatus === "owned"
@@ -171,6 +172,13 @@ const OwnershipOverviewPage = ({
                         onClick={() => handleGenerateURL(warranty)}
                       >
                         URL
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="light"
+                        onClick={() => handleViewWarrantyDetails(warranty)}
+                      >
+                        Details
                       </Button>
                     </Group>
                   </Table.Td>
