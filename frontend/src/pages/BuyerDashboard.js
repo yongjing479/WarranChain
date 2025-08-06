@@ -37,8 +37,11 @@ import {
   getCountdownText,
   formatDate,
 } from "../utils/warrantyUtils";
+
 import { useWarranties } from "../hooks/useWarranties";
 import { useMockWallet } from "../contexts/MockWalletContext";
+import ChatWidget from "../components/ChatWidget";
+
 
 const BuyerDashboard = () => {
   const [activeTab, setActiveTab] = useState("ownership-overview");
@@ -415,6 +418,7 @@ const BuyerDashboard = () => {
           </Notification>
         </div>
       )}
+      <ChatWidget />
     </div>
   );
 };
