@@ -1,41 +1,40 @@
 import React from "react";
-import { Group, Text } from "@mantine/core";
-import { IconShield, IconTransfer } from "@tabler/icons-react";
+import { Group, Text, ScrollArea, ActionIcon } from "@mantine/core";
+import {
+  IconShield,
+  IconTransfer,
+  IconLogout,
+} from "@tabler/icons-react";
+import { LinksGroup } from "./LinksGroup";
 
 const CustomNavbar = ({ activeTab, setActiveTab }) => {
-  const navData = [
-    { link: "warranty-list", label: "Warranty List", icon: IconShield },
-    { link: "transfer-nft", label: "Transfer NFT", icon: IconTransfer },
+  const mockdata = [
+    {
+      label: "Warranty List",
+      icon: IconShield,
+      link: "warranty-list",
+    },
+    {
+      label: "Product Ownership",
+      icon: IconTransfer,
+      initiallyOpened: true,
+      links: [
+        { label: "Overview", link: "ownership-overview" },
+        { label: "Transfer NFT", link: "transfer-nft" },
+        { label: "Transferred NFTs", link: "transferred" },
+        { label: "Received NFTs", link: "received" },
+      ],
+    },
   ];
 
-  const links = navData.map((item) => {
-    const Icon = item.icon;
-    return (
-      <button
-        key={item.label}
-        onClick={() => setActiveTab(item.link)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "12px 16px",
-          textDecoration: "none",
-          color: activeTab === item.link ? "#228be6" : "#495057",
-          backgroundColor: activeTab === item.link ? "#e7f5ff" : "transparent",
-          borderRadius: "8px",
-          marginBottom: "4px",
-          fontWeight: activeTab === item.link ? 600 : 400,
-          transition: "all 0.2s ease",
-          border: "none",
-          cursor: "pointer",
-          width: "100%",
-          textAlign: "left",
-        }}
-      >
-        <Icon size={20} style={{ marginRight: "12px" }} />
-        <span>{item.label}</span>
-      </button>
-    );
-  });
+  const links = mockdata.map((item) => (
+    <LinksGroup
+      {...item}
+      key={item.label}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+    />
+  ));
 
   return (
     <nav
@@ -49,23 +48,50 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
         flexDirection: "column",
       }}
     >
-      <div style={{ flex: 1 }}>
-        <Group justify="space-between" style={{ marginBottom: "2rem" }}>
+      <div className="header" style={{ marginBottom: "2rem" }}>
+        <Group justify="space-between">
           <Text size="lg" fw={700} c="blue">
-            Buyer Dashboard
+            WarranChain
           </Text>
         </Group>
-        {links}
+      </div>
+
+      <ScrollArea style={{ flex: 1 }}>
+        <div style={{ paddingBottom: "1rem" }}>{links}</div>
+      </ScrollArea>
+
+      <div
+        style={{
+          marginTop: "1rem",
+          marginBottom: "1rem",
+          padding: "0.5rem 0.75rem",
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          cursor: "pointer",
+          color: "red",
+          transition: "background-color 0.2s",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff5f5")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+      >
+        <ActionIcon variant="transparent" color="red" size="lg" aria-label="Logout">
+          <IconLogout size={20} />
+        </ActionIcon>
+        <Text size="md" fw={500}>
+          Logout
+        </Text>
       </div>
 
       <div
         style={{
           borderTop: "1px solid #dee2e6",
-          paddingTop: "1rem",
+          paddingTop: "1.5rem",
         }}
       >
         <Text size="sm" c="dimmed" ta="center">
-          WarrantyChain v1.0
+          WarranChain v1.0
         </Text>
       </div>
     </nav>

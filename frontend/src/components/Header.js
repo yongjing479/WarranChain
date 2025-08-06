@@ -4,10 +4,9 @@ import {
   Group,
   ActionIcon,
   TextInput,
-  Avatar,
-  Title,
+  Avatar
 } from "@mantine/core";
-import { IconSearch, IconBell, IconLogout } from "@tabler/icons-react";
+import { IconSearch, IconBell} from "@tabler/icons-react";
 
 const Header = ({ searchQuery, setSearchQuery }) => {
   return (
@@ -21,12 +20,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
     >
       <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
         <Group justify="space-between" style={{ flex: 1 }}>
-          <Title order={3} c="blue">
-            WarrantyChain
-          </Title>
-
-          <Group gap="md">
-            <TextInput
+          <TextInput
               placeholder="Search serial number or product name..."
               leftSection={<IconSearch size={16} />}
               value={searchQuery}
@@ -34,6 +28,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
               style={{ width: 300 }}
             />
 
+          <Group gap="lg">
             <ActionIcon
               variant="subtle"
               color="gray"
@@ -48,15 +43,6 @@ const Header = ({ searchQuery, setSearchQuery }) => {
               size="md"
               radius="xl"
             />
-
-            <ActionIcon
-              variant="subtle"
-              color="red"
-              size="lg"
-              aria-label="Logout"
-            >
-              <IconLogout size={20} />
-            </ActionIcon>
           </Group>
         </Group>
       </div>
