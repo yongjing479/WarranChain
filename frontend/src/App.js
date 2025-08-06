@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BuyerDashboard from "./pages/BuyerDashboard.js";
 import SellerDashboard from "./pages/SellerDashboard.js";
 import PublicWarrantyDetails from "./pages/PublicWarrantyDetails.js";
+import { MockWalletProvider } from "./contexts/MockWalletContext.js";
 
 const theme = createTheme({
   // Customize your theme here
@@ -13,18 +14,20 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme}>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<BuyerDashboard />} />
-            <Route path="/seller" element={<SellerDashboard />} />
+      <MockWalletProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<BuyerDashboard />} />
+              <Route path="/seller" element={<SellerDashboard />} />
             <Route
               path="/verify/:warrantyId"
               element={<PublicWarrantyDetails />}
             />
-          </Routes>
-        </div>
-      </Router>
+            </Routes>
+          </div>
+        </Router>
+      </MockWalletProvider>
     </MantineProvider>
   );
 }
