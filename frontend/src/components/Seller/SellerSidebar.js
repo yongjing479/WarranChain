@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Group, Text, UnstyledButton } from "@mantine/core";
+import { Box, Group, Text, UnstyledButton, ActionIcon } from "@mantine/core";
 import {
   IconPlus,
   IconShield,
@@ -7,6 +7,7 @@ import {
   IconPhone,
   IconDeviceDesktop,
   IconDeviceTablet,
+  IconLogout,
 } from "@tabler/icons-react";
 
 const SellerSidebar = ({ activeTab, setActiveTab }) => {
@@ -103,6 +104,8 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
         backgroundColor: "#f8f9fa",
         borderRight: "1px solid #dee2e6",
         padding: "1rem",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Group mb="xl">
@@ -110,12 +113,55 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
         <Text size="xl" fw={700} c="#228be6">
           WarranChain
         </Text>
-        <Text size="xs" c="dimmed">
-          Seller
-        </Text>
       </Group>
 
-      <Box>{sidebarData.map(renderNavItem)}</Box>
+      <Box style={{ flex: 1 }}>{sidebarData.map(renderNavItem)}</Box>
+
+      {/* Logout Button */}
+      <div
+        style={{
+          marginTop: "1rem",
+          marginBottom: "1rem",
+          padding: "0.5rem 0.75rem",
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          cursor: "pointer",
+          color: "red",
+          transition: "background-color 0.2s",
+        }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fff5f5")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = "transparent")
+        }
+      >
+        <ActionIcon
+          variant="transparent"
+          color="red"
+          size="lg"
+          aria-label="Logout"
+        >
+          <IconLogout size={20} />
+        </ActionIcon>
+        <Text size="md" fw={500}>
+          Logout
+        </Text>
+      </div>
+
+      {/* Footer */}
+      <div
+        style={{
+          borderTop: "1px solid #dee2e6",
+          paddingTop: "1.5rem",
+        }}
+      >
+        <Text size="sm" c="dimmed" ta="center">
+          WarranChain v1.0
+        </Text>
+      </div>
     </Box>
   );
 };

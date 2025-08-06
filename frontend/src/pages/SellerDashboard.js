@@ -18,6 +18,7 @@ import {
   IconShield,
 } from "@tabler/icons-react";
 import HeaderComponent from "../components/Header";
+import FooterComponent from "../components/Footer";
 import SellerSidebar from "../components/Seller/SellerSidebar";
 import IssueWarrantyModal from "../components/Seller/IssueWarrantyModal";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
@@ -316,7 +317,7 @@ const SellerDashboard = () => {
     <Container size="xl">
       <Group justify="space-between" mb="xl">
         <div>
-          <Title order={2}>Seller Dashboard</Title>
+          <Title order={2}>Dashboard</Title>
           <Text c="dimmed">Manage your electronics warranties</Text>
         </div>
         <Button
@@ -474,6 +475,7 @@ const SellerDashboard = () => {
             </Container>
           )}
         </div>
+        <FooterComponent />
       </div>
 
       {/* All Modals */}
