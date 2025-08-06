@@ -3,6 +3,7 @@ import "@mantine/core/styles.css";
 import { MantineProvider, createTheme } from "@mantine/core";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BuyerDashboard from "./pages/BuyerDashboard.js";
+import SellerDashboard from "./pages/SellerDashboard.js";
 import PublicWarrantyDetails from "./pages/PublicWarrantyDetails.js";
 
 const theme = createTheme({
@@ -16,7 +17,11 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<BuyerDashboard />} />
-            <Route path="/verify/:warrantyId" element={<PublicWarrantyDetails />} />
+            <Route path="/seller" element={<SellerDashboard />} />
+            <Route
+              path="/verify/:warrantyId"
+              element={<PublicWarrantyDetails />}
+            />
           </Routes>
         </div>
       </Router>
