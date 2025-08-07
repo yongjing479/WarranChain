@@ -8,7 +8,6 @@ import {
   Collapse,
 } from "@mantine/core";
 import {
-  IconPlus,
   IconShield,
   IconDevices,
   IconPhone,
@@ -17,11 +16,14 @@ import {
   IconLogout,
   IconChevronDown,
   IconChevronRight,
+  IconSettings,
+  IconLeaf
 } from "@tabler/icons-react";
 
 const SellerSidebar = ({ activeTab, setActiveTab }) => {
   const [expandedItems, setExpandedItems] = React.useState({
     "product-models": true,
+    "business-metrics": false,
   });
 
   const sidebarData = [
@@ -73,6 +75,17 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
         },
       ],
     },
+    {
+       label: "Sustainable Impact",
+       icon: IconLeaf, 
+       link: "sustainability",
+       hasChildren: false,
+    },
+    {
+      label: "Settings",
+      icon: IconSettings,
+      link: "settings",
+    }
   ];
 
   const toggleExpanded = (link) => {

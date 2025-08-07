@@ -21,6 +21,9 @@ import {
   IconShield,
   IconSortAscending,
   IconSortDescending,
+  IconReportMoney,
+  IconUsers,
+  IconBuildingStore,
 } from "@tabler/icons-react";
 import HeaderComponent from "../components/Header";
 import FooterComponent from "../components/Footer";
@@ -33,9 +36,10 @@ import SellerChatWidget from "../components/Seller/SellerChatWidget";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
-  getWarrantyStatusText,
   formatDate,
 } from "../utils/warrantyUtils";
+import renderSustainabilityDashboard from "./sellerSustainabilityDashhboard";
+import renderSettings from "./SellerSettings"
 
 const SellerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -568,8 +572,10 @@ const SellerDashboard = () => {
     <Container size="xl">
       <Group justify="space-between" mb="xl">
         <div>
-          <Title order={2}>Dashboard</Title>
-          <Text c="dimmed">Manage your electronics warranties</Text>
+          <Title order={2}>Seller Dashboard</Title>
+          <Text c="dimmed">
+            Manage your warranty business and track performance
+          </Text>
         </div>
         <Button
           size="lg"
@@ -580,17 +586,20 @@ const SellerDashboard = () => {
         </Button>
       </Group>
 
-      {/* Stats Cards */}
+      {/* Seller-specific Stats Cards */}
       <Grid mb="xl">
         <Grid.Col span={3}>
           <Card shadow="sm" padding="lg">
             <Group justify="space-between">
               <div>
                 <Text size="sm" c="dimmed">
-                  Total Warranties
+                  Total Warranties Issued
                 </Text>
                 <Text size="xl" fw={700}>
                   {issuedWarranties.length}
+                </Text>
+                <Text size="xs" c="green" fw={500}>
+                  +12% this month
                 </Text>
               </div>
               <IconShield size={24} color="#228be6" />
@@ -602,21 +611,16 @@ const SellerDashboard = () => {
             <Group justify="space-between">
               <div>
                 <Text size="sm" c="dimmed">
-                  Active Warranties
+                  Revenue Generated
                 </Text>
                 <Text size="xl" fw={700}>
-                  {
-                    issuedWarranties.filter((w) => {
-                      const info = calculateWarrantyInfo(w);
-                      return (
-                        info.status === "valid" ||
-                        info.status === "expiring-soon"
-                      );
-                    }).length
-                  }
+                  ${(issuedWarranties.length * 25).toLocaleString()}
+                </Text>
+                <Text size="xs" c="green" fw={500}>
+                  +8% vs last month
                 </Text>
               </div>
-              <IconShield size={24} color="#40c057" />
+              <IconReportMoney size={24} color="#40c057" />
             </Group>
           </Card>
         </Grid.Col>
@@ -625,18 +629,22 @@ const SellerDashboard = () => {
             <Group justify="space-between">
               <div>
                 <Text size="sm" c="dimmed">
-                  Expired Warranties
+                  Active Customers
                 </Text>
                 <Text size="xl" fw={700}>
                   {
-                    issuedWarranties.filter((w) => {
-                      const info = calculateWarrantyInfo(w);
-                      return info.status === "expired";
-                    }).length
+                    [
+                      ...new Set(
+                        issuedWarranties.map((w) => w.buyerWalletAddress)
+                      ),
+                    ].length
                   }
                 </Text>
+                <Text size="xs" c="blue" fw={500}>
+                  +5 new this week
+                </Text>
               </div>
-              <IconShield size={24} color="#fa5252" />
+              <IconUsers size={24} color="#fd7e14" />
             </Group>
           </Card>
         </Grid.Col>
@@ -645,16 +653,26 @@ const SellerDashboard = () => {
             <Group justify="space-between">
               <div>
                 <Text size="sm" c="dimmed">
-                  Product Brands
+                  Top Product Brand
                 </Text>
                 <Text size="xl" fw={700}>
-                  {
-                    [...new Set(issuedWarranties.map((w) => w.productBrand))]
-                      .length
-                  }
+                  {(() => {
+                    const brandCounts = {};
+                    issuedWarranties.forEach((w) => {
+                      brandCounts[w.productBrand] =
+                        (brandCounts[w.productBrand] || 0) + 1;
+                    });
+                    const topBrand = Object.entries(brandCounts).sort(
+                      (a, b) => b[1] - a[1]
+                    )[0];
+                    return topBrand ? topBrand[0] : "N/A";
+                  })()}
+                </Text>
+                <Text size="xs" c="dimmed" fw={500}>
+                  Most popular
                 </Text>
               </div>
-              <IconShield size={24} color="#7c2d12" />
+              <IconBuildingStore size={24} color="#7c2d12" />
             </Group>
           </Card>
         </Grid.Col>
@@ -680,6 +698,9 @@ const SellerDashboard = () => {
 
         <div style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
           {activeTab === "dashboard" && renderDashboard()}
+          {activeTab === "sustainability" &&
+            renderSustainabilityDashboard({ issuedWarranties })}
+          {activeTab === "settings" && renderSettings()}
 
           {activeTab === "product-categories" && (
             <Container size="xl">
