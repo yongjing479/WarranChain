@@ -11,7 +11,6 @@ import {
   Grid,
   Card,
   Select,
-  TextInput,
   Center,
 } from "@mantine/core";
 import {
@@ -33,13 +32,13 @@ import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
 import SellerWarrantyDetailsModal from "../components/Seller/SellerWarrantyDetailsModal";
 import SellerChatWidget from "../components/Seller/SellerChatWidget";
+import SellerSustainabilityDashboard from "./sellerSustainabilityDashhboard";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
   formatDate,
 } from "../utils/warrantyUtils";
-import renderSustainabilityDashboard from "./sellerSustainabilityDashhboard";
-import renderSettings from "./SellerSettings"
+import renderSettings from "./SellerSettings";
 
 const SellerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -572,7 +571,7 @@ const SellerDashboard = () => {
     <Container size="xl">
       <Group justify="space-between" mb="xl">
         <div>
-          <Title order={2}>Seller Dashboard</Title>
+          <Title order={2}>Dashboard</Title>
           <Text c="dimmed">
             Manage your warranty business and track performance
           </Text>
@@ -698,8 +697,11 @@ const SellerDashboard = () => {
 
         <div style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
           {activeTab === "dashboard" && renderDashboard()}
-          {activeTab === "sustainability" &&
-            renderSustainabilityDashboard({ issuedWarranties })}
+          {activeTab === "sustainability" && (
+            <SellerSustainabilityDashboard
+              issuedWarranties={issuedWarranties}
+            />
+          )}
           {activeTab === "settings" && renderSettings()}
 
           {activeTab === "product-categories" && (

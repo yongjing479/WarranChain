@@ -36,24 +36,28 @@ const NFTTransferPage = ({
         <Title order={4} mb="md">
           Transfer NFT - Available Products
         </Title>
-        {transferableWarranties.length === 0 ? (
-          <Text c="dimmed" ta="center" py="xl">
-            No products available for transfer.
-          </Text>
-        ) : (
-          <Table>
-            <Table.Thead>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Serial No</Table.Th>
+              <Table.Th>Product Name</Table.Th>
+              <Table.Th>Ownership Status</Table.Th>
+              <Table.Th>Warranty Status</Table.Th>
+              <Table.Th>Repairs</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {transferableWarranties.length === 0 ? (
               <Table.Tr>
-                <Table.Th>Serial No</Table.Th>
-                <Table.Th>Product Name</Table.Th>
-                <Table.Th>Ownership Status</Table.Th>
-                <Table.Th>Warranty Status</Table.Th>
-                <Table.Th>Repairs</Table.Th>
-                <Table.Th>Actions</Table.Th>
+                <Table.Td colSpan={6}>
+                  <Text c="dimmed" ta="center" py="xl">
+                    No products available for transfer.
+                  </Text>
+                </Table.Td>
               </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {transferableWarranties.map((warranty) => {
+            ) : (
+              transferableWarranties.map((warranty) => {
                 const warrantyInfo = calculateWarrantyInfo(warranty);
 
                 const getOwnershipBadge = () => {
@@ -149,10 +153,10 @@ const NFTTransferPage = ({
                     </Table.Td>
                   </Table.Tr>
                 );
-              })}
-            </Table.Tbody>
-          </Table>
-        )}
+              })
+            )}
+          </Table.Tbody>
+        </Table>
       </Paper>
     </Container>
   );

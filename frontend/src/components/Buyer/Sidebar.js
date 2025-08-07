@@ -13,6 +13,8 @@ import {
   IconLogout,
   IconChevronDown,
   IconChevronRight,
+  IconLeaf,
+  IconSettings,
 } from "@tabler/icons-react";
 
 const BuyerSidebar = ({ activeTab, setActiveTab }) => {
@@ -22,7 +24,7 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
 
   const sidebarData = [
     {
-      label: "Warranty List",
+      label: "Dashboard",
       icon: IconShield,
       link: "warranty-list",
     },
@@ -53,6 +55,16 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
           link: "received",
         },
       ],
+    },
+    {
+      label: "Sustainable Impact",
+      icon: IconLeaf,
+      link: "sustainability",
+    },
+    {
+      label: "Settings",
+      icon: IconSettings,
+      link: "settings",
     },
   ];
 
