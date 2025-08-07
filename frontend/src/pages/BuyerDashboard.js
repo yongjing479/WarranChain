@@ -20,7 +20,7 @@ import {
 } from "@tabler/icons-react";
 import FooterComponent from "../components/Footer";
 import HeaderComponent from "../components/Header";
-import CustomNavbar from "../components/Buyer/Sidebar";
+import BuyerSidebar from "../components/Buyer/Sidebar";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
 import TransferModal from "../components/Buyer/TransferModal";
@@ -40,8 +40,7 @@ import {
 
 import { useWarranties } from "../hooks/useWarranties";
 import { useMockWallet } from "../contexts/MockWalletContext";
-import ChatWidget from "../components/ChatWidget";
-
+import ChatWidget from "../components/Buyer/BuyerChatWidget";
 
 const BuyerDashboard = () => {
   const [activeTab, setActiveTab] = useState("ownership-overview");
@@ -57,17 +56,17 @@ const BuyerDashboard = () => {
     useState(null);
 
   // Use the real blockchain data instead of mock data
-  const { 
-    warranties, 
-    loading, 
-    error, 
-    transferWarranty, 
-    addRepair, 
+  const {
+    warranties,
+    loading,
+    error,
+    transferWarranty,
+    addRepair,
     refreshWarranties,
     isConnected,
-    currentAccount 
+    currentAccount,
   } = useWarranties();
-  
+
   const { connect, disconnect, switchAccount, mockAddresses } = useMockWallet();
 
   // Filter warranties based on search query
@@ -107,7 +106,12 @@ const BuyerDashboard = () => {
     }
 
     try {
-      console.log("Transferring NFT:", warranty.serialNo, "to:", recipientAddress);
+      console.log(
+        "Transferring NFT:",
+        warranty.serialNo,
+        "to:",
+        recipientAddress
+      );
 
       // Use the real blockchain transfer function
       await transferWarranty(warranty, recipientAddress);
@@ -116,7 +120,12 @@ const BuyerDashboard = () => {
       setTransferNotification({
         type: "success",
         title: "Transfer Successful",
-        message: `NFT for ${warranty.productName} has been transferred to ${recipientAddress.slice(0, 10)}...${recipientAddress.slice(-8)}`,
+        message: `NFT for ${
+          warranty.productName
+        } has been transferred to ${recipientAddress.slice(
+          0,
+          10
+        )}...${recipientAddress.slice(-8)}`,
       });
 
       // Refresh warranties to get updated state
@@ -173,9 +182,11 @@ const BuyerDashboard = () => {
       return (
         <Paper shadow="xs" p="md">
           <Center>
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: "center" }}>
               <IconWallet size={48} color="gray" />
-              <Text mt="md" size="lg">Connect Your Wallet</Text>
+              <Text mt="md" size="lg">
+                Connect Your Wallet
+              </Text>
               <Text c="dimmed" mb="md">
                 Connect your wallet to view your warranty NFTs
               </Text>
@@ -189,15 +200,19 @@ const BuyerDashboard = () => {
     return (
       <Paper shadow="xs" p="md">
         <Group justify="space-between" mb="md">
-          <Title order={4}>
-            Warranty List ({filteredWarranties.length})
-          </Title>
+          <Title order={4}>Warranty List ({filteredWarranties.length})</Title>
           <Group>
             <TestMintButton onMintSuccess={refreshWarranties} />
             <Text size="sm" c="dimmed">
-              Connected: {currentAccount?.address?.slice(0, 6)}...{currentAccount?.address?.slice(-4)}
+              Connected: {currentAccount?.address?.slice(0, 6)}...
+              {currentAccount?.address?.slice(-4)}
             </Text>
-            <Button size="xs" variant="light" onClick={refreshWarranties} loading={loading}>
+            <Button
+              size="xs"
+              variant="light"
+              onClick={refreshWarranties}
+              loading={loading}
+            >
               Refresh
             </Button>
             <Button size="xs" variant="light" onClick={disconnect}>
@@ -205,7 +220,7 @@ const BuyerDashboard = () => {
             </Button>
           </Group>
         </Group>
-        
+
         {/* Mock account switcher for testing */}
         <Group mb="md">
           <Text size="sm">Test accounts:</Text>
@@ -317,7 +332,7 @@ const BuyerDashboard = () => {
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      <CustomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BuyerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <HeaderComponent
           searchQuery={searchQuery}

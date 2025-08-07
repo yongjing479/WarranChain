@@ -9,51 +9,83 @@ import {
 } from "@mantine/core";
 import {
   IconShield,
-  IconTransfer,
+  IconDevices,
+  IconPhone,
+  IconDeviceDesktop,
+  IconDeviceTablet,
   IconLogout,
   IconChevronDown,
   IconChevronRight,
+  IconSettings,
+  IconLeaf
 } from "@tabler/icons-react";
 
-const BuyerSidebar = ({ activeTab, setActiveTab }) => {
+const SellerSidebar = ({ activeTab, setActiveTab }) => {
   const [expandedItems, setExpandedItems] = React.useState({
-    "product-ownership": true,
+    "product-models": true,
+    "business-metrics": false,
   });
 
   const sidebarData = [
     {
-      label: "Warranty List",
+      label: "Dashboard",
       icon: IconShield,
-      link: "warranty-list",
+      link: "dashboard",
     },
     {
-      label: "Product Ownership",
-      icon: IconTransfer,
-      link: "product-ownership",
+      label: "Product Categories",
+      icon: IconDevices,
+      link: "product-categories",
       hasChildren: true,
       children: [
         {
-          label: "Overview",
-          icon: IconShield,
-          link: "ownership-overview",
+          label: "Phones & Gadgets",
+          icon: IconPhone,
+          link: "phones-gadgets",
         },
         {
-          label: "Transfer NFT",
-          icon: IconTransfer,
-          link: "transfer-nft",
+          label: "Refrigerators",
+          icon: IconDeviceDesktop,
+          link: "refrigerators",
         },
         {
-          label: "Transferred NFTs",
-          icon: IconTransfer,
-          link: "transferred",
+          label: "Air Conditioners",
+          icon: IconDeviceDesktop,
+          link: "air-conditioners",
         },
         {
-          label: "Received NFTs",
-          icon: IconTransfer,
-          link: "received",
+          label: "Fans & Cooling",
+          icon: IconDeviceTablet,
+          link: "fans-cooling",
+        },
+        {
+          label: "Televisions",
+          icon: IconPhone,
+          link: "televisions",
+        },
+        {
+          label: "Washing Machines",
+          icon: IconDeviceDesktop,
+          link: "washing-machines",
+        },
+        {
+          label: "Kitchen Appliances",
+          icon: IconPhone,
+          link: "kitchen-appliances",
         },
       ],
     },
+    {
+       label: "Sustainable Impact",
+       icon: IconLeaf, 
+       link: "sustainability",
+       hasChildren: false,
+    },
+    {
+      label: "Settings",
+      icon: IconSettings,
+      link: "settings",
+    }
   ];
 
   const toggleExpanded = (link) => {
@@ -202,4 +234,4 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
   );
 };
 
-export default BuyerSidebar;
+export default SellerSidebar;
