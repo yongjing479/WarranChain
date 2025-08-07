@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchUserWarranties, transferWarrantyNFT, addRepairEvent } from '../services/suiService';
+import { fetchUserWarranties, transferWarrantyNFT, addRepairEvent, mintTestWarranty } from '../services/suiService';
 import { useMockWallet } from '../contexts/MockWalletContext';
 
 export const useWarranties = () => {
@@ -27,11 +27,19 @@ export const useWarranties = () => {
       console.log('Loading warranties for:', currentAccount.address);
       const userWarranties = await fetchUserWarranties(currentAccount.address);
       console.log('Loaded warranties:', userWarranties);
-      setWarranties(userWarranties);
+      
+      // If no real warranties found, use mock data for development
+      if (userWarranties.length === 0) {
+        console.log('🧪 No blockchain warranties found. Using mock data for testing UI functionality');
+        setWarranties(getMockWarranties());
+      } else {
+        setWarranties(userWarranties);
+      }
     } catch (err) {
       console.error('Error loading warranties:', err);
       setError(err.message);
-      // For now, use mock data if blockchain fetch fails
+      // For testing: Use mock data to show UI functionality
+      console.log('🧪 Using mock data due to blockchain error');
       setWarranties(getMockWarranties());
     } finally {
       setLoading(false);
@@ -138,6 +146,40 @@ export const useWarranties = () => {
     loadWarranties();
   };
 
+  // Mint new warranty NFT
+  const mintWarranty = async (warrantyData) => {
+    if (!isConnected) {
+      throw new Error('Wallet not connected');
+    }
+
+    try {
+      setLoading(true);
+      console.log('🏭 Minting warranty with data:', warrantyData);
+      
+      // Create mint transaction
+      const txb = await mintTestWarranty(warrantyData, warrantyData.recipient);
+      
+      console.log('📋 Transaction block created:', txb);
+      
+      // Execute transaction through mock wallet
+      const result = await signAndExecuteTransactionBlock({ 
+        transactionBlock: txb 
+      });
+      
+      console.log('✅ Mint transaction result:', result);
+      
+      // Refresh warranties to show the new one (in real scenario)
+      await loadWarranties();
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Mint warranty failed:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     warranties,
     loading,
@@ -145,6 +187,7 @@ export const useWarranties = () => {
     transferWarranty,
     addRepair,
     refreshWarranties,
+    mintTestWarranty: mintWarranty, // Expose mint function
     // Status helpers
     isConnected,
     currentAccount

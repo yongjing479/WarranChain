@@ -33,7 +33,6 @@ import OwnershipOverviewPage from "./Ownership/OwnershipOverviewPage";
 import TransferredPage from "./Ownership/TransferredPage";
 import ReceivedPage from "./Ownership/ReceivedPage";
 import WarrantyDetailsModal from "../components/Buyer/WarrantyDetailsModal";
-import TestMintButton from "../components/TestMintButton";
 import BuyerSustainabilityDashboard from "./buyerSustainabilityDashboard";
 import BuyerSettings from "./buyerSettings";
 import {
@@ -208,7 +207,6 @@ const BuyerDashboard = () => {
         <Group justify="space-between" mb="md">
           <Title order={2}>Dashboard</Title>
           <Group>
-            <TestMintButton onMintSuccess={refreshWarranties} />
             <Text size="sm" c="dimmed">
               Connected: {currentAccount?.address?.slice(0, 6)}...
               {currentAccount?.address?.slice(-4)}
