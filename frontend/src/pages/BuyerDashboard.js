@@ -10,13 +10,17 @@ import {
   Notification,
   Loader,
   Center,
+  Grid,
+  Card,
 } from "@mantine/core";
 import {
   IconQrcode,
   IconLink,
-  IconCheck,
   IconTools,
   IconWallet,
+  IconShield,
+  IconReportMoney,
+  IconCheck,
 } from "@tabler/icons-react";
 import FooterComponent from "../components/Footer";
 import HeaderComponent from "../components/Header";
@@ -30,6 +34,8 @@ import TransferredPage from "./Ownership/TransferredPage";
 import ReceivedPage from "./Ownership/ReceivedPage";
 import WarrantyDetailsModal from "../components/Buyer/WarrantyDetailsModal";
 import TestMintButton from "../components/TestMintButton";
+import BuyerSustainabilityDashboard from "./buyerSustainabilityDashboard";
+import BuyerSettings from "./buyerSettings";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
@@ -200,7 +206,7 @@ const BuyerDashboard = () => {
     return (
       <Paper shadow="xs" p="md">
         <Group justify="space-between" mb="md">
-          <Title order={4}>Warranty List ({filteredWarranties.length})</Title>
+          <Title order={2}>Dashboard</Title>
           <Group>
             <TestMintButton onMintSuccess={refreshWarranties} />
             <Text size="sm" c="dimmed">
@@ -220,6 +226,121 @@ const BuyerDashboard = () => {
             </Button>
           </Group>
         </Group>
+
+        {/* Buyer-specific Stats Cards */}
+        <Grid mb="xl">
+          <Grid.Col span={3}>
+            <Card shadow="sm" padding="lg">
+              <Group justify="space-between">
+                <div>
+                  <Text size="sm" c="dimmed">
+                    Total Warranties Owned
+                  </Text>
+                  <Text size="xl" fw={700}>
+                    {warranties.length}
+                  </Text>
+                  <Text size="xs" c="green" fw={500}>
+                    +2 this month
+                  </Text>
+                </div>
+                <IconShield size={24} color="#228be6" />
+              </Group>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Card shadow="sm" padding="lg">
+              <Group justify="space-between">
+                <div>
+                  <Text size="sm" c="dimmed">
+                    Active Warranties
+                  </Text>
+                  <Text size="xl" fw={700}>
+                    {
+                      warranties.filter((w) => {
+                        const info = calculateWarrantyInfo(w);
+                        return info.status === "valid";
+                      }).length
+                    }
+                  </Text>
+                  <Text size="xs" c="blue" fw={500}>
+                    {warranties.filter((w) => {
+                      const info = calculateWarrantyInfo(w);
+                      return info.status === "valid";
+                    }).length > 0
+                      ? "Valid"
+                      : "Expired"}
+                  </Text>
+                </div>
+                <IconCheck size={24} color="#40c057" />
+              </Group>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Card shadow="sm" padding="lg">
+              <Group justify="space-between">
+                <div>
+                  <Text size="sm" c="dimmed">
+                    Total Repairs
+                  </Text>
+                  <Text size="xl" fw={700}>
+                    {warranties.reduce(
+                      (total, w) => total + w.repairHistory.length,
+                      0
+                    )}
+                  </Text>
+                  <Text size="xs" c="orange" fw={500}>
+                    Last:{" "}
+                    {(() => {
+                      const allRepairs = warranties.flatMap(
+                        (w) => w.repairHistory
+                      );
+                      if (allRepairs.length === 0) return "None";
+                      const lastRepair = allRepairs.sort(
+                        (a, b) => new Date(b.date) - new Date(a.date)
+                      )[0];
+                      return formatDate(lastRepair.date);
+                    })()}
+                  </Text>
+                </div>
+                <IconTools size={24} color="#fd7e14" />
+              </Group>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Card shadow="sm" padding="lg">
+              <Group justify="space-between">
+                <div>
+                  <Text size="sm" c="dimmed">
+                    Money Saved
+                  </Text>
+                  <Text size="xl" fw={700}>
+                    $
+                    {warranties
+                      .reduce(
+                        (total, w) =>
+                          total +
+                          w.repairHistory.reduce(
+                            (repairTotal, repair) =>
+                              repairTotal + (repair.cost || 0),
+                            0
+                          ),
+                        0
+                      )
+                      .toLocaleString()}
+                  </Text>
+                  <Text size="xs" c="green" fw={500}>
+                    Through warranty coverage
+                  </Text>
+                </div>
+                <IconReportMoney size={24} color="#40c057" />
+              </Group>
+            </Card>
+          </Grid.Col>
+        </Grid>
+
+        <Title order={4} mb="md">
+          Warranty List ({filteredWarranties.length})
+        </Title>
 
         {/* Mock account switcher for testing */}
         <Group mb="md">
@@ -248,82 +369,94 @@ const BuyerDashboard = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {filteredWarranties.map((warranty) => {
-              const warrantyInfo = calculateWarrantyInfo(warranty);
-              return (
-                <Table.Tr key={warranty.id}>
-                  <Table.Td>
-                    <Text fw={500}>{warranty.serialNo}</Text>
-                  </Table.Td>
-                  <Table.Td>{warranty.productName}</Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{formatDate(warranty.purchaseDate)}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge
-                      color={getWarrantyStatusColor(warrantyInfo.status)}
-                      variant="light"
-                    >
-                      {getWarrantyStatusText(
-                        warrantyInfo.status,
-                        warrantyInfo.daysLeft
-                      )}
-                    </Badge>
-                  </Table.Td>
-
-                  <Table.Td>
-                    <Group gap="xs">
+            {filteredWarranties.length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={6}>
+                  <Text c="dimmed" ta="center" py="xl">
+                    {searchQuery
+                      ? "No warranties match your search."
+                      : "No warranties found. Connect your wallet to view your NFTs."}
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              filteredWarranties.map((warranty) => {
+                const warrantyInfo = calculateWarrantyInfo(warranty);
+                return (
+                  <Table.Tr key={warranty.id}>
+                    <Table.Td>
+                      <Text fw={500}>{warranty.serialNo}</Text>
+                    </Table.Td>
+                    <Table.Td>{warranty.productName}</Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{formatDate(warranty.purchaseDate)}</Text>
+                    </Table.Td>
+                    <Table.Td>
                       <Badge
-                        color={
-                          warranty.repairHistory.length > 0 ? "blue" : "gray"
-                        }
+                        color={getWarrantyStatusColor(warrantyInfo.status)}
                         variant="light"
-                        leftSection={<IconTools size={12} />}
                       >
-                        {warranty.repairHistory.length}
+                        {getWarrantyStatusText(
+                          warrantyInfo.status,
+                          warrantyInfo.daysLeft
+                        )}
                       </Badge>
-                      {warranty.repairHistory.length > 0 && (
-                        <Text size="xs" c="dimmed">
-                          Last:{" "}
-                          {formatDate(
-                            warranty.repairHistory[
-                              warranty.repairHistory.length - 1
-                            ].date
-                          )}
-                        </Text>
-                      )}
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Button
-                        size="xs"
-                        leftSection={<IconQrcode size={14} />}
-                        variant="light"
-                        onClick={() => handleGenerateQR(warranty)}
-                      >
-                        QR
-                      </Button>
-                      <Button
-                        size="xs"
-                        leftSection={<IconLink size={14} />}
-                        variant="light"
-                        onClick={() => handleGenerateURL(warranty)}
-                      >
-                        URL
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="light"
-                        onClick={() => handleViewWarrantyDetails(warranty)}
-                      >
-                        Details
-                      </Button>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              );
-            })}
+                    </Table.Td>
+
+                    <Table.Td>
+                      <Group gap="xs">
+                        <Badge
+                          color={
+                            warranty.repairHistory.length > 0 ? "blue" : "gray"
+                          }
+                          variant="light"
+                          leftSection={<IconTools size={12} />}
+                        >
+                          {warranty.repairHistory.length}
+                        </Badge>
+                        {warranty.repairHistory.length > 0 && (
+                          <Text size="xs" c="dimmed">
+                            Last:{" "}
+                            {formatDate(
+                              warranty.repairHistory[
+                                warranty.repairHistory.length - 1
+                              ].date
+                            )}
+                          </Text>
+                        )}
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          leftSection={<IconQrcode size={14} />}
+                          variant="light"
+                          onClick={() => handleGenerateQR(warranty)}
+                        >
+                          QR
+                        </Button>
+                        <Button
+                          size="xs"
+                          leftSection={<IconLink size={14} />}
+                          variant="light"
+                          onClick={() => handleGenerateURL(warranty)}
+                        >
+                          URL
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={() => handleViewWarrantyDetails(warranty)}
+                        >
+                          Details
+                        </Button>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })
+            )}
           </Table.Tbody>
         </Table>
       </Paper>
@@ -385,6 +518,10 @@ const BuyerDashboard = () => {
               handleViewWarrantyDetails={handleViewWarrantyDetails}
             />
           )}
+          {activeTab === "sustainability" && (
+            <BuyerSustainabilityDashboard warranties={warranties} />
+          )}
+          {activeTab === "settings" && <BuyerSettings />}
         </div>
         <FooterComponent />
       </div>

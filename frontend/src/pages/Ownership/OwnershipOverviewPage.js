@@ -10,12 +10,10 @@ import {
   Paper,
   Grid,
   Card,
-  Stack,
 } from "@mantine/core";
 import {
   IconQrcode,
   IconLink,
-  IconTools,
   IconShield,
   IconTransfer,
   IconDownload,
@@ -107,84 +105,96 @@ const OwnershipOverviewPage = ({
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {warranties.map((warranty) => {
-              const warrantyInfo = calculateWarrantyInfo(warranty);
-              const getOwnershipBadge = () => {
-                if (warranty.transferStatus === "received") {
-                  return (
-                    <Badge color="green" variant="light">
-                      Received
-                    </Badge>
-                  );
-                } else if (warranty.transferStatus === "transferred") {
-                  return (
-                    <Badge color="orange" variant="light">
-                      Transferred
-                    </Badge>
-                  );
-                } else if (
-                  warranty.transferStatus === "owned" ||
-                  !warranty.transferStatus
-                ) {
-                  return (
-                    <Badge color="blue" variant="light">
-                      Owned
-                    </Badge>
-                  );
-                } else {
-                  return (
-                    <Badge color="gray" variant="light">
-                      Unknown
-                    </Badge>
-                  );
-                }
-              };
+            {warranties.length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  <Text c="dimmed" ta="center" py="xl">
+                    No warranties found. Connect your wallet to view your NFTs.
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              warranties.map((warranty) => {
+                const warrantyInfo = calculateWarrantyInfo(warranty);
+                const getOwnershipBadge = () => {
+                  if (warranty.transferStatus === "received") {
+                    return (
+                      <Badge color="green" variant="light">
+                        Received
+                      </Badge>
+                    );
+                  } else if (warranty.transferStatus === "transferred") {
+                    return (
+                      <Badge color="orange" variant="light">
+                        Transferred
+                      </Badge>
+                    );
+                  } else if (
+                    warranty.transferStatus === "owned" ||
+                    !warranty.transferStatus
+                  ) {
+                    return (
+                      <Badge color="blue" variant="light">
+                        Owned
+                      </Badge>
+                    );
+                  } else {
+                    return (
+                      <Badge color="gray" variant="light">
+                        Unknown
+                      </Badge>
+                    );
+                  }
+                };
 
-              return (
-                <Table.Tr key={warranty.id}>
-                  <Table.Td>
-                    <Text fw={500}>{warranty.serialNo}</Text>
-                  </Table.Td>
-                  <Table.Td>{warranty.productName}</Table.Td>
-                  <Table.Td>{getOwnershipBadge()}</Table.Td>
-                  <Table.Td>
-                    <Badge
-                      color={warrantyInfo.status === "valid" ? "green" : "red"}
-                      variant="light"
-                    >
-                      {warrantyInfo.status}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Button
-                        size="xs"
-                        leftSection={<IconQrcode size={14} />}
+                return (
+                  <Table.Tr key={warranty.id}>
+                    <Table.Td>
+                      <Text fw={500}>{warranty.serialNo}</Text>
+                    </Table.Td>
+                    <Table.Td>{warranty.productName}</Table.Td>
+                    <Table.Td>{getOwnershipBadge()}</Table.Td>
+                    <Table.Td>
+                      <Badge
+                        color={
+                          warrantyInfo.status === "valid" ? "green" : "red"
+                        }
                         variant="light"
-                        onClick={() => handleGenerateQR(warranty)}
                       >
-                        QR
-                      </Button>
-                      <Button
-                        size="xs"
-                        leftSection={<IconLink size={14} />}
-                        variant="light"
-                        onClick={() => handleGenerateURL(warranty)}
-                      >
-                        URL
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="light"
-                        onClick={() => handleViewWarrantyDetails(warranty)}
-                      >
-                        Details
-                      </Button>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              );
-            })}
+                        {warrantyInfo.status}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          leftSection={<IconQrcode size={14} />}
+                          variant="light"
+                          onClick={() => handleGenerateQR(warranty)}
+                        >
+                          QR
+                        </Button>
+                        <Button
+                          size="xs"
+                          leftSection={<IconLink size={14} />}
+                          variant="light"
+                          onClick={() => handleGenerateURL(warranty)}
+                        >
+                          URL
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={() => handleViewWarrantyDetails(warranty)}
+                        >
+                          Details
+                        </Button>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })
+            )}
           </Table.Tbody>
         </Table>
       </Paper>
