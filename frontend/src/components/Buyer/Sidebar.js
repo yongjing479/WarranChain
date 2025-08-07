@@ -1,14 +1,26 @@
 import React from "react";
-import { Group, Text, ScrollArea, ActionIcon } from "@mantine/core";
+import {
+  Box,
+  Group,
+  Text,
+  UnstyledButton,
+  ActionIcon,
+  Collapse,
+} from "@mantine/core";
 import {
   IconShield,
   IconTransfer,
   IconLogout,
+  IconChevronDown,
+  IconChevronRight,
 } from "@tabler/icons-react";
-import { LinksGroup } from "./LinksGroup";
 
-const CustomNavbar = ({ activeTab, setActiveTab }) => {
-  const mockdata = [
+const BuyerSidebar = ({ activeTab, setActiveTab }) => {
+  const [expandedItems, setExpandedItems] = React.useState({
+    "product-ownership": true,
+  });
+
+  const sidebarData = [
     {
       label: "Warranty List",
       icon: IconShield,
@@ -17,49 +29,131 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
     {
       label: "Product Ownership",
       icon: IconTransfer,
-      initiallyOpened: true,
-      links: [
-        { label: "Overview", link: "ownership-overview" },
-        { label: "Transfer NFT", link: "transfer-nft" },
-        { label: "Transferred NFTs", link: "transferred" },
-        { label: "Received NFTs", link: "received" },
+      link: "product-ownership",
+      hasChildren: true,
+      children: [
+        {
+          label: "Overview",
+          icon: IconShield,
+          link: "ownership-overview",
+        },
+        {
+          label: "Transfer NFT",
+          icon: IconTransfer,
+          link: "transfer-nft",
+        },
+        {
+          label: "Transferred NFTs",
+          icon: IconTransfer,
+          link: "transferred",
+        },
+        {
+          label: "Received NFTs",
+          icon: IconTransfer,
+          link: "received",
+        },
       ],
     },
   ];
 
-  const links = mockdata.map((item) => (
-    <LinksGroup
-      {...item}
-      key={item.label}
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-    />
-  ));
+  const toggleExpanded = (link) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [link]: !prev[link],
+    }));
+  };
+
+  const renderNavItem = (item) => (
+    <Box key={item.link}>
+      <UnstyledButton
+        onClick={() => {
+          if (item.hasChildren) {
+            toggleExpanded(item.link);
+          } else {
+            setActiveTab(item.link);
+          }
+        }}
+        style={{
+          display: "block",
+          width: "100%",
+          padding: "12px 16px",
+          borderRadius: "8px",
+          backgroundColor: activeTab === item.link ? "#e7f5ff" : "transparent",
+          color: activeTab === item.link ? "#228be6" : "#495057",
+          fontWeight: activeTab === item.link ? 600 : 400,
+        }}
+      >
+        <Group justify="space-between">
+          <Group>
+            <item.icon size={20} />
+            <Text size="md">{item.label}</Text>
+          </Group>
+          {item.hasChildren &&
+            (expandedItems[item.link] ? (
+              <IconChevronDown size={16} />
+            ) : (
+              <IconChevronRight size={16} />
+            ))}
+        </Group>
+      </UnstyledButton>
+
+      {/* Render children with smooth scroll animation */}
+      {item.children && (
+        <Collapse
+          in={expandedItems[item.link]}
+          transitionDuration={300}
+          transitionTimingFunction="ease"
+        >
+          <Box ml="md" mt="xs">
+            {item.children.map((child) => (
+              <UnstyledButton
+                key={child.link}
+                onClick={() => setActiveTab(child.link)}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  backgroundColor:
+                    activeTab === child.link ? "#e7f5ff" : "transparent",
+                  color: activeTab === child.link ? "#228be6" : "#6c757d",
+                  marginBottom: "4px",
+                }}
+              >
+                <Group gap="sm">
+                  <child.icon size={16} />
+                  <Text size="sm">{child.label}</Text>
+                </Group>
+              </UnstyledButton>
+            ))}
+          </Box>
+        </Collapse>
+      )}
+    </Box>
+  );
 
   return (
-    <nav
+    <Box
       style={{
-        width: 300,
+        width: "300px",
         height: "100vh",
-        backgroundColor: "white",
+        backgroundColor: "#f8f9fa",
         borderRight: "1px solid #dee2e6",
         padding: "1rem",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <div className="header" style={{ marginBottom: "2rem" }}>
-        <Group justify="space-between">
-          <Text size="lg" fw={700} c="blue">
-            WarranChain
-          </Text>
-        </Group>
-      </div>
+      <Group mb="xl">
+        <IconShield size={28} color="#228be6" />
+        <Text size="xl" fw={700} c="#228be6">
+          WarranChain
+        </Text>
+      </Group>
 
-      <ScrollArea style={{ flex: 1 }}>
-        <div style={{ paddingBottom: "1rem" }}>{links}</div>
-      </ScrollArea>
+      <Box style={{ flex: 1 }}>{sidebarData.map(renderNavItem)}</Box>
 
+      {/* Logout Button */}
       <div
         style={{
           marginTop: "1rem",
@@ -73,10 +167,19 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
           color: "red",
           transition: "background-color 0.2s",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff5f5")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fff5f5")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = "transparent")
+        }
       >
-        <ActionIcon variant="transparent" color="red" size="lg" aria-label="Logout">
+        <ActionIcon
+          variant="transparent"
+          color="red"
+          size="lg"
+          aria-label="Logout"
+        >
           <IconLogout size={20} />
         </ActionIcon>
         <Text size="md" fw={500}>
@@ -84,6 +187,7 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
         </Text>
       </div>
 
+      {/* Footer */}
       <div
         style={{
           borderTop: "1px solid #dee2e6",
@@ -94,8 +198,8 @@ const CustomNavbar = ({ activeTab, setActiveTab }) => {
           WarranChain v1.0
         </Text>
       </div>
-    </nav>
+    </Box>
   );
 };
 
-export default CustomNavbar;
+export default BuyerSidebar;

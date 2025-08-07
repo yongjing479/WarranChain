@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Group, Text, UnstyledButton, ActionIcon } from "@mantine/core";
+import {
+  Box,
+  Group,
+  Text,
+  UnstyledButton,
+  ActionIcon,
+  Collapse,
+} from "@mantine/core";
 import {
   IconPlus,
   IconShield,
@@ -8,9 +15,15 @@ import {
   IconDeviceDesktop,
   IconDeviceTablet,
   IconLogout,
+  IconChevronDown,
+  IconChevronRight,
 } from "@tabler/icons-react";
 
 const SellerSidebar = ({ activeTab, setActiveTab }) => {
+  const [expandedItems, setExpandedItems] = React.useState({
+    "product-models": true,
+  });
+
   const sidebarData = [
     {
       label: "Dashboard",
@@ -18,38 +31,67 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
       link: "dashboard",
     },
     {
-      label: "Product Models",
+      label: "Product Categories",
       icon: IconDevices,
-      link: "product-models",
+      link: "product-categories",
+      hasChildren: true,
       children: [
         {
-          label: "iPhone Models",
+          label: "Phones & Gadgets",
           icon: IconPhone,
-          link: "iphone-models",
+          link: "phones-gadgets",
         },
         {
-          label: "MacBook Models",
+          label: "Refrigerators",
           icon: IconDeviceDesktop,
-          link: "macbook-models",
+          link: "refrigerators",
         },
         {
-          label: "iPad Models",
+          label: "Air Conditioners",
+          icon: IconDeviceDesktop,
+          link: "air-conditioners",
+        },
+        {
+          label: "Fans & Cooling",
           icon: IconDeviceTablet,
-          link: "ipad-models",
+          link: "fans-cooling",
         },
         {
-          label: "Samsung Models",
+          label: "Televisions",
           icon: IconPhone,
-          link: "samsung-models",
+          link: "televisions",
+        },
+        {
+          label: "Washing Machines",
+          icon: IconDeviceDesktop,
+          link: "washing-machines",
+        },
+        {
+          label: "Kitchen Appliances",
+          icon: IconPhone,
+          link: "kitchen-appliances",
         },
       ],
     },
   ];
 
+  const toggleExpanded = (link) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [link]: !prev[link],
+    }));
+  };
+
   const renderNavItem = (item) => (
     <Box key={item.link}>
       <UnstyledButton
-        onClick={() => setActiveTab(item.link)}
+        onClick={() => {
+          if (item.hasChildren) {
+            toggleExpanded(item.link);
+          } else {
+            setActiveTab(item.link);
+          }
+        }}
         style={{
           display: "block",
           width: "100%",
@@ -60,38 +102,51 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
           fontWeight: activeTab === item.link ? 600 : 400,
         }}
       >
-        <Group>
-          <item.icon size={20} />
-          <Text size="sm">{item.label}</Text>
+        <Group justify="space-between">
+          <Group>
+            <item.icon size={20} />
+            <Text size="md">{item.label}</Text>
+          </Group>
+          {item.hasChildren &&
+            (expandedItems[item.link] ? (
+              <IconChevronDown size={16} />
+            ) : (
+              <IconChevronRight size={16} />
+            ))}
         </Group>
       </UnstyledButton>
 
-      {/* Render children if exists */}
+      {/* Render children with smooth scroll animation */}
       {item.children && (
-        <Box ml="md" mt="xs">
-          {item.children.map((child) => (
-            <UnstyledButton
-              key={child.link}
-              onClick={() => setActiveTab(child.link)}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                backgroundColor:
-                  activeTab === child.link ? "#e7f5ff" : "transparent",
-                color: activeTab === child.link ? "#228be6" : "#6c757d",
-                fontSize: "14px",
-                marginBottom: "4px",
-              }}
-            >
-              <Group gap="sm">
-                <child.icon size={16} />
-                <Text size="xs">{child.label}</Text>
-              </Group>
-            </UnstyledButton>
-          ))}
-        </Box>
+        <Collapse
+          in={expandedItems[item.link]}
+          transitionDuration={300}
+          transitionTimingFunction="ease"
+        >
+          <Box ml="md" mt="xs">
+            {item.children.map((child) => (
+              <UnstyledButton
+                key={child.link}
+                onClick={() => setActiveTab(child.link)}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  backgroundColor:
+                    activeTab === child.link ? "#e7f5ff" : "transparent",
+                  color: activeTab === child.link ? "#228be6" : "#6c757d",
+                  marginBottom: "4px",
+                }}
+              >
+                <Group gap="sm">
+                  <child.icon size={16} />
+                  <Text size="sm">{child.label}</Text>
+                </Group>
+              </UnstyledButton>
+            ))}
+          </Box>
+        </Collapse>
       )}
     </Box>
   );

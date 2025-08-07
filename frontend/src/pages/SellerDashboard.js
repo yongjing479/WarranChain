@@ -10,12 +10,17 @@ import {
   Table,
   Grid,
   Card,
+  Select,
+  TextInput,
+  Center,
 } from "@mantine/core";
 import {
   IconPlus,
   IconQrcode,
   IconLink,
   IconShield,
+  IconSortAscending,
+  IconSortDescending,
 } from "@tabler/icons-react";
 import HeaderComponent from "../components/Header";
 import FooterComponent from "../components/Footer";
@@ -62,6 +67,98 @@ const SellerDashboard = () => {
     {
       id: 1,
       serialNo: "WR-2024-001",
+      productName: "Samsung Refrigerator",
+      productBrand: "Samsung",
+      productModel: "RF28T5001SR/AA",
+      purchaseDate: "2024-01-15",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x1234...5678",
+      issueDate: "2024-01-15",
+      purchaseLocation: "Best Buy SF",
+      description: "French Door Refrigerator with FlexZone",
+      repairHistory: [
+        {
+          id: 1,
+          date: "2024-03-20",
+          issue: "Ice maker repair",
+          status: "Completed",
+          cost: 0,
+        },
+      ],
+    },
+    {
+      id: 2,
+      serialNo: "WR-2024-002",
+      productName: "LG Air Conditioner",
+      productBrand: "LG",
+      productModel: "LP1419IVSM",
+      purchaseDate: "2024-02-10",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x5678...9012",
+      issueDate: "2024-02-10",
+      purchaseLocation: "Home Depot NYC",
+      description: "14,000 BTU Smart Wi-Fi Air Conditioner",
+      repairHistory: [],
+    },
+    {
+      id: 3,
+      serialNo: "WR-2024-003",
+      productName: "Dyson Fan",
+      productBrand: "Dyson",
+      productModel: "AM07",
+      purchaseDate: "2024-03-05",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x9012...3456",
+      issueDate: "2024-03-05",
+      purchaseLocation: "Target LA",
+      description: "Air Multiplier Tower Fan",
+      repairHistory: [],
+    },
+    {
+      id: 4,
+      serialNo: "WR-2024-004",
+      productName: "Sony TV",
+      productBrand: "Sony",
+      productModel: "XBR-65A9G",
+      purchaseDate: "2024-01-20",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x3456...7890",
+      issueDate: "2024-01-20",
+      purchaseLocation: "Best Buy Chicago",
+      description: "65-inch 4K OLED TV",
+      repairHistory: [],
+    },
+    {
+      id: 5,
+      serialNo: "WR-2024-005",
+      productName: "Whirlpool Washing Machine",
+      productBrand: "Whirlpool",
+      productModel: "WTW8127LC",
+      purchaseDate: "2024-02-25",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x7890...1234",
+      issueDate: "2024-02-25",
+      purchaseLocation: "Lowe's Miami",
+      description: "Top Load Washer with Load & Go",
+      repairHistory: [],
+    },
+    {
+      id: 6,
+      serialNo: "WR-2024-006",
+      productName: "KitchenAid Mixer",
+      productBrand: "KitchenAid",
+      productModel: "KSM150PSER",
+      purchaseDate: "2024-03-10",
+      warrantyPeriod: 365,
+      buyerWalletAddress: "0x2345...6789",
+      issueDate: "2024-03-10",
+      purchaseLocation: "Williams-Sonoma Seattle",
+      description: "Professional 600 Series Stand Mixer",
+      repairHistory: [],
+    },
+    {
+      id: 7,
+      serialNo: "WR-2024-007",
       productName: "iPhone 15 Pro",
       productBrand: "Apple",
       productModel: "iPhone 15 Pro 256GB",
@@ -71,7 +168,6 @@ const SellerDashboard = () => {
       issueDate: "2024-01-15",
       purchaseLocation: "Apple Store SF",
       description: "Latest iPhone with Pro camera system",
-      // Add repair history for compatibility with WarrantyDetailsModal
       repairHistory: [
         {
           id: 1,
@@ -83,8 +179,8 @@ const SellerDashboard = () => {
       ],
     },
     {
-      id: 2,
-      serialNo: "WR-2024-002",
+      id: 8,
+      serialNo: "WR-2024-008",
       productName: "MacBook Air M2",
       productBrand: "Apple",
       productModel: "MacBook Air M2 512GB",
@@ -96,45 +192,47 @@ const SellerDashboard = () => {
       description: "Ultra-thin laptop with M2 chip",
       repairHistory: [],
     },
-    {
-      id: 3,
-      serialNo: "WR-2024-003",
-      productName: "iPad Pro 12.9",
-      productBrand: "Apple",
-      productModel: "iPad Pro 12.9 1TB",
-      purchaseDate: "2024-01-20",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x9012...3456",
-      issueDate: "2024-01-20",
-      purchaseLocation: "Best Buy",
-      description: "Professional tablet with M2 chip",
-      repairHistory: [],
-    },
-    {
-      id: 4,
-      serialNo: "WR-2024-004",
-      productName: "Samsung Galaxy S24",
-      productBrand: "Samsung",
-      productModel: "Galaxy S24 Ultra 512GB",
-      purchaseDate: "2024-03-05",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x3456...7890",
-      issueDate: "2024-03-05",
-      purchaseLocation: "Samsung Store",
-      description: "Premium Android smartphone",
-      repairHistory: [],
-    },
   ]);
 
+  // Electronics brands for the form
   const electronicsBrands = [
-    { value: "Apple", label: "Apple" },
     { value: "Samsung", label: "Samsung" },
-    { value: "Sony", label: "Sony" },
     { value: "LG", label: "LG" },
+    { value: "Sony", label: "Sony" },
+    { value: "Panasonic", label: "Panasonic" },
+    { value: "Sharp", label: "Sharp" },
+    { value: "Toshiba", label: "Toshiba" },
+    { value: "Hisense", label: "Hisense" },
+    { value: "Vizio", label: "Vizio" },
+    { value: "Whirlpool", label: "Whirlpool" },
+    { value: "Maytag", label: "Maytag" },
+    { value: "KitchenAid", label: "KitchenAid" },
+    { value: "Bosch", label: "Bosch" },
+    { value: "GE", label: "GE" },
+    { value: "Frigidaire", label: "Frigidaire" },
+    { value: "Electrolux", label: "Electrolux" },
+    { value: "Dyson", label: "Dyson" },
+    { value: "Honeywell", label: "Honeywell" },
+    { value: "Lasko", label: "Lasko" },
+    { value: "Vornado", label: "Vornado" },
+    { value: "Apple", label: "Apple" },
     { value: "Dell", label: "Dell" },
     { value: "HP", label: "HP" },
     { value: "Lenovo", label: "Lenovo" },
-    { value: "Asus", label: "Asus" },
+    { value: "ASUS", label: "ASUS" },
+    { value: "Acer", label: "Acer" },
+    { value: "MSI", label: "MSI" },
+    { value: "Razer", label: "Razer" },
+    { value: "Cuisinart", label: "Cuisinart" },
+    { value: "Breville", label: "Breville" },
+    { value: "Ninja", label: "Ninja" },
+    { value: "Instant Pot", label: "Instant Pot" },
+    { value: "Vitamix", label: "Vitamix" },
+    { value: "Blendtec", label: "Blendtec" },
+    { value: "Hamilton Beach", label: "Hamilton Beach" },
+    { value: "Oster", label: "Oster" },
+    { value: "Sunbeam", label: "Sunbeam" },
+    { value: "Black+Decker", label: "Black+Decker" },
   ];
 
   // Helper function to format wallet address
@@ -195,7 +293,7 @@ const SellerDashboard = () => {
       repairHistory: [], // Initialize empty repair history
     };
 
-    setIssuedWarranties((prev) => [...prev, newWarranty]);
+    setIssuedWarranties((prev) => [newWarranty, ...prev]); // Add to top instead of bottom
     setIssueModalOpened(false);
 
     // Reset form
@@ -221,97 +319,249 @@ const SellerDashboard = () => {
     );
   };
 
+  // Get recent warranties with better category representation
+  const getRecentWarranties = () => {
+    // Get the most recent warranties but ensure we have representation from different categories
+    const recentWarranties = issuedWarranties.slice(-8);
+
+    // If we have enough warranties, return them
+    if (recentWarranties.length >= 6) {
+      return recentWarranties;
+    }
+
+    // Otherwise return all warranties (for demo purposes)
+    return issuedWarranties;
+  };
+
   // Warranty table component - styled EXACTLY like buyer dashboard
-  const WarrantyTable = ({ warranties, title }) => (
-    <Paper shadow="xs" p="md">
-      <Group justify="space-between" mb="md">
-        <Title order={4}>{title}</Title>
-        <Badge size="lg" variant="light">
-          Total: {warranties.length}
-        </Badge>
-      </Group>
-      <Table>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Serial No</Table.Th>
-            <Table.Th>Product Name</Table.Th>
-            <Table.Th>Brand</Table.Th>
-            <Table.Th>Buyer Address</Table.Th>
-            <Table.Th>Issue Date</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>Actions</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {warranties.map((warranty) => {
-            const warrantyInfo = calculateWarrantyInfo(warranty);
-            return (
-              <Table.Tr key={warranty.id}>
-                <Table.Td>
-                  <Text fw={500}>{warranty.serialNo}</Text>
-                </Table.Td>
-                <Table.Td>{warranty.productName}</Table.Td>
-                <Table.Td>
-                  <Badge variant="light" color="blue">
-                    {warranty.productBrand}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm" c="dimmed">
-                    {warranty.buyerWalletAddress}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{formatDate(warranty.issueDate)}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    color={getWarrantyStatusColor(warrantyInfo.status)}
-                    variant="light"
-                  >
-                    {/* Show only status text without days remaining */}
-                    {warrantyInfo.status === "valid"
-                      ? "Valid"
-                      : warrantyInfo.status === "expired"
-                      ? "Expired"
-                      : "Unknown"}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  {/* EXACT same styling as buyer dashboard */}
-                  <Group gap="xs">
-                    <Button
-                      size="xs"
-                      leftSection={<IconQrcode size={14} />}
+  const WarrantyTable = ({ warranties, title }) => {
+    const [sortBy, setSortBy] = useState("issueDate");
+    const [sortOrder, setSortOrder] = useState("desc");
+
+    const handleSort = (field) => {
+      if (sortBy === field) {
+        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+      } else {
+        setSortBy(field);
+        setSortOrder("desc");
+      }
+    };
+
+    // Filter warranties based on header search query
+    const filteredWarranties = warranties.filter((warranty) => {
+      if (!searchQuery) return true;
+
+      const query = searchQuery.toLowerCase();
+      return (
+        warranty.serialNo.toLowerCase().includes(query) ||
+        warranty.productName.toLowerCase().includes(query)
+      );
+    });
+
+    const sortedWarranties = [...filteredWarranties].sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
+
+      // Handle date sorting
+      if (sortBy === "issueDate") {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      // Handle string sorting
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return (
+      <Paper shadow="xs" p="md">
+        <Group justify="space-between" mb="md">
+          <Group>
+            <Title order={4}>{title}</Title>
+            <Badge size="lg" variant="light">
+              Total: {filteredWarranties.length}
+            </Badge>
+          </Group>
+          <Group>
+            <Select
+              size="sm"
+              value={sortBy}
+              onChange={setSortBy}
+              data={[
+                { value: "issueDate", label: "Issue Date" },
+                { value: "productName", label: "Product Name" },
+                { value: "productBrand", label: "Brand" },
+                { value: "serialNo", label: "Serial No" },
+              ]}
+              style={{ width: 140 }}
+            />
+            <Button
+              size="sm"
+              variant="light"
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              leftSection={
+                sortOrder === "asc" ? (
+                  <IconSortAscending size={14} />
+                ) : (
+                  <IconSortDescending size={14} />
+                )
+              }
+            >
+              {sortOrder === "asc" ? "Newest First" : "Oldest First"}
+            </Button>
+          </Group>
+        </Group>
+
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th
+                style={{ cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("serialNo")}
+              >
+                <Group gap="xs">
+                  Serial No
+                  {sortBy === "serialNo" && (
+                    <Badge size="xs" variant="light">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </Badge>
+                  )}
+                </Group>
+              </Table.Th>
+              <Table.Th
+                style={{ cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("productName")}
+              >
+                <Group gap="xs">
+                  Product Name
+                  {sortBy === "productName" && (
+                    <Badge size="xs" variant="light">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </Badge>
+                  )}
+                </Group>
+              </Table.Th>
+              <Table.Th
+                style={{ cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("productBrand")}
+              >
+                <Group gap="xs">
+                  Brand
+                  {sortBy === "productBrand" && (
+                    <Badge size="xs" variant="light">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </Badge>
+                  )}
+                </Group>
+              </Table.Th>
+              <Table.Th>Buyer Address</Table.Th>
+              <Table.Th
+                style={{ cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("issueDate")}
+              >
+                <Group gap="xs">
+                  Issue Date
+                  {sortBy === "issueDate" && (
+                    <Badge size="xs" variant="light">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </Badge>
+                  )}
+                </Group>
+              </Table.Th>
+              <Table.Th>Status</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {sortedWarranties.map((warranty) => {
+              const warrantyInfo = calculateWarrantyInfo(warranty);
+              return (
+                <Table.Tr key={warranty.id}>
+                  <Table.Td>
+                    <Text fw={500}>{warranty.serialNo}</Text>
+                  </Table.Td>
+                  <Table.Td>{warranty.productName}</Table.Td>
+                  <Table.Td>
+                    <Badge variant="light" color="blue">
+                      {warranty.productBrand}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">
+                      {warranty.buyerWalletAddress}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{formatDate(warranty.issueDate)}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge
+                      color={getWarrantyStatusColor(warrantyInfo.status)}
                       variant="light"
-                      onClick={() => handleGenerateQR(warranty)}
                     >
-                      QR
-                    </Button>
-                    <Button
-                      size="xs"
-                      leftSection={<IconLink size={14} />}
-                      variant="light"
-                      onClick={() => handleGenerateURL(warranty)}
-                    >
-                      URL
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="light"
-                      onClick={() => handleViewWarrantyDetails(warranty)}
-                    >
-                      Details
-                    </Button>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
-        </Table.Tbody>
-      </Table>
-    </Paper>
-  );
+                      {/* Show only status text without days remaining */}
+                      {warrantyInfo.status === "valid"
+                        ? "Valid"
+                        : warrantyInfo.status === "expired"
+                        ? "Expired"
+                        : "Unknown"}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    {/* EXACT same styling as buyer dashboard */}
+                    <Group gap="xs">
+                      <Button
+                        size="xs"
+                        leftSection={<IconQrcode size={14} />}
+                        variant="light"
+                        onClick={() => handleGenerateQR(warranty)}
+                      >
+                        QR
+                      </Button>
+                      <Button
+                        size="xs"
+                        leftSection={<IconLink size={14} />}
+                        variant="light"
+                        onClick={() => handleGenerateURL(warranty)}
+                      >
+                        URL
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="light"
+                        onClick={() => handleViewWarrantyDetails(warranty)}
+                      >
+                        Details
+                      </Button>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
+          </Table.Tbody>
+        </Table>
+
+        {/* No results message */}
+        {sortedWarranties.length === 0 && (
+          <Center py="xl">
+            <Text c="dimmed" size="lg">
+              {searchQuery
+                ? "No warranties found matching your search."
+                : "No warranties available."}
+            </Text>
+          </Center>
+        )}
+      </Paper>
+    );
+  };
 
   // Dashboard overview
   const renderDashboard = () => (
@@ -412,7 +662,7 @@ const SellerDashboard = () => {
 
       {/* Recent Warranties */}
       <WarrantyTable
-        warranties={issuedWarranties.slice(-5)}
+        warranties={getRecentWarranties()}
         title="Recent Warranties Issued"
       />
     </Container>
@@ -431,47 +681,74 @@ const SellerDashboard = () => {
         <div style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
           {activeTab === "dashboard" && renderDashboard()}
 
-          {activeTab === "product-models" && (
+          {activeTab === "product-categories" && (
             <Container size="xl">
               <WarrantyTable
                 warranties={issuedWarranties}
-                title="All Product Models"
+                title="All Product Categories"
               />
             </Container>
           )}
 
-          {activeTab === "iphone-models" && (
+          {activeTab === "phones-gadgets" && (
             <Container size="xl">
               <WarrantyTable
                 warranties={getWarrantiesByModel("iPhone")}
-                title="iPhone Model Warranties"
+                title="Phones & Gadgets Warranties"
               />
             </Container>
           )}
 
-          {activeTab === "macbook-models" && (
+          {activeTab === "refrigerators" && (
             <Container size="xl">
               <WarrantyTable
-                warranties={getWarrantiesByModel("MacBook")}
-                title="MacBook Model Warranties"
+                warranties={getWarrantiesByModel("Refrigerator")}
+                title="Refrigerator Warranties"
               />
             </Container>
           )}
 
-          {activeTab === "ipad-models" && (
+          {activeTab === "air-conditioners" && (
             <Container size="xl">
               <WarrantyTable
-                warranties={getWarrantiesByModel("iPad")}
-                title="iPad Model Warranties"
+                warranties={getWarrantiesByModel("Air Conditioner")}
+                title="Air Conditioner Warranties"
               />
             </Container>
           )}
 
-          {activeTab === "samsung-models" && (
+          {activeTab === "fans-cooling" && (
             <Container size="xl">
               <WarrantyTable
-                warranties={getWarrantiesByModel("Samsung")}
-                title="Samsung Model Warranties"
+                warranties={getWarrantiesByModel("Fan")}
+                title="Fans & Cooling Warranties"
+              />
+            </Container>
+          )}
+
+          {activeTab === "televisions" && (
+            <Container size="xl">
+              <WarrantyTable
+                warranties={getWarrantiesByModel("TV")}
+                title="Television Warranties"
+              />
+            </Container>
+          )}
+
+          {activeTab === "washing-machines" && (
+            <Container size="xl">
+              <WarrantyTable
+                warranties={getWarrantiesByModel("Washing Machine")}
+                title="Washing Machine Warranties"
+              />
+            </Container>
+          )}
+
+          {activeTab === "kitchen-appliances" && (
+            <Container size="xl">
+              <WarrantyTable
+                warranties={getWarrantiesByModel("KitchenAid")}
+                title="Kitchen Appliance Warranties"
               />
             </Container>
           )}
