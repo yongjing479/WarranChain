@@ -24,6 +24,7 @@ import IssueWarrantyModal from "../components/Seller/IssueWarrantyModal";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
 import SellerWarrantyDetailsModal from "../components/Seller/SellerWarrantyDetailsModal";
+import SellerChatWidget from "../components/SellerChatWidget";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
@@ -513,6 +514,9 @@ const SellerDashboard = () => {
         onClose={() => setShowWarrantyDetailsModal(false)}
         warranty={selectedWarranty}
       />
+
+      {/* Seller Chat Widget */}
+      <SellerChatWidget />
     </div>
   );
 };
