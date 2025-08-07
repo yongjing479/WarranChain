@@ -22,17 +22,17 @@ import {
   IconChevronUp,
   IconChevronDown,
 } from "@tabler/icons-react";
-import ChatInput from "./ChatWidget/ChatInput";
-import { responses } from "./ChatWidget/mockResponses";
+import ChatInput from "../ChatWidget/ChatInput";
+import { sellerResponses } from "../ChatWidget/sellerMockResponses";
 
-const ChatWidget = () => {
+const SellerChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showQuickQuestions, setShowQuickQuestions] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: "bot",
-      text: "Hi! I'm your Warranty Assistant. How can I help you today?",
+      text: "Hi! I'm your Seller Warranty Assistant. How can I help you manage your warranties today?",
       timestamp: new Date(),
     },
   ]);
@@ -49,11 +49,13 @@ const ChatWidget = () => {
   }, [messages]);
 
   const quickQuestions = [
-    "Share warranty",
+    "Issue warranty",
+    "Warranty details",
+    "Buyer address",
+    "Warranty period",
+    "Product brands",
+    "Dashboard stats",
     "QR codes",
-    "Transfer NFT",
-    "Warranty status",
-    "Repair history",
     "Help",
   ];
 
@@ -73,7 +75,7 @@ const ChatWidget = () => {
     const lowerInput = inputValue.toLowerCase();
     let response = null;
 
-    for (const [key, value] of Object.entries(responses)) {
+    for (const [key, value] of Object.entries(sellerResponses)) {
       if (lowerInput.includes(key)) {
         response = value;
         break;
@@ -82,8 +84,8 @@ const ChatWidget = () => {
 
     if (!response) {
       response = {
-        text: "I'm not sure about that. Try asking about: sharing warranties, QR codes, transfers, warranty status, or repair history.",
-        quickActions: ["Help", "How to share warranty?"],
+        text: "I'm not sure about that. Try asking about: issuing warranties, warranty details, buyer addresses, warranty periods, product brands, dashboard stats, QR codes, or general help.",
+        quickActions: ["Help", "How to issue warranty?"],
       };
     }
 
@@ -168,7 +170,7 @@ const ChatWidget = () => {
               >
                 <Group>
                   <IconRobot size={20} color="#228be6" />
-                  <Text fw={600}>Warranty Assistant</Text>
+                  <Text fw={600}>Seller Warranty Assistant</Text>
                   <Badge size="xs" color="blue">
                     AI
                   </Badge>
@@ -294,4 +296,4 @@ const ChatWidget = () => {
   );
 };
 
-export default ChatWidget;
+export default SellerChatWidget;

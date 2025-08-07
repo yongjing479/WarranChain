@@ -29,7 +29,7 @@ import IssueWarrantyModal from "../components/Seller/IssueWarrantyModal";
 import QRCodeModal from "../components/Buyer/QRCodeModal";
 import URLModal from "../components/Buyer/URLModal";
 import SellerWarrantyDetailsModal from "../components/Seller/SellerWarrantyDetailsModal";
-import SellerChatWidget from "../components/SellerChatWidget";
+import SellerChatWidget from "../components/Seller/SellerChatWidget";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
@@ -321,8 +321,8 @@ const SellerDashboard = () => {
 
   // Get recent warranties with better category representation
   const getRecentWarranties = () => {
-    // Get the most recent warranties but ensure we have representation from different categories
-    const recentWarranties = issuedWarranties.slice(-8);
+    // Get the first 8 warranties (newest since we add to top)
+    const recentWarranties = issuedWarranties.slice(0, 8);
 
     // If we have enough warranties, return them
     if (recentWarranties.length >= 6) {

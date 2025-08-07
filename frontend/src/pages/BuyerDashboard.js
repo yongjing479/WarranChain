@@ -40,7 +40,7 @@ import {
 
 import { useWarranties } from "../hooks/useWarranties";
 import { useMockWallet } from "../contexts/MockWalletContext";
-import ChatWidget from "../components/ChatWidget";
+import ChatWidget from "../components/Buyer/BuyerChatWidget";
 
 const BuyerDashboard = () => {
   const [activeTab, setActiveTab] = useState("ownership-overview");
