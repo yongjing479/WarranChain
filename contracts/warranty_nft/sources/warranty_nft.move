@@ -143,6 +143,53 @@ module warranty_nft::warranty_nft {
         sui::transfer::transfer(nft, recipient);
     }
 
+    /// Simple mint function for testing without Option types
+    public entry fun mint_warranty_simple(
+        product_name: vector<u8>,
+        manufacturer: vector<u8>,
+        serial_number: vector<u8>,
+        warranty_period_days: u64,
+        recipient: address,
+        clock: &Clock,
+        ctx: &mut sui::tx_context::TxContext
+    ) {
+        // Validation
+        assert!(!std::vector::is_empty(&product_name), E_EMPTY_PRODUCT_NAME);
+        assert!(!std::vector::is_empty(&serial_number), E_EMPTY_SERIAL_NUMBER);
+
+        let purchase_timestamp = sui::clock::timestamp_ms(clock);
+        let expiry_timestamp = purchase_timestamp + (warranty_period_days * 24 * 60 * 60 * 1000);
+
+        let description = std::string::utf8(b"Digital warranty certificate for authentic product verification and ownership tracking.");
+
+        let nft = WarrantyNFT {
+            id: sui::object::new(ctx),
+            product_name: std::string::utf8(product_name),
+            manufacturer: std::string::utf8(manufacturer),
+            serial_number: std::string::utf8(serial_number),
+            purchase_date: purchase_timestamp,
+            warranty_period_days,
+            expiry_date: expiry_timestamp,
+            repair_history: std::vector::empty(),
+            owner: recipient,
+            image_url: std::option::none(),
+            description,
+        };
+
+        let nft_id = sui::object::id(&nft);
+
+        sui::event::emit(WarrantyMinted {
+            nft_id,
+            product_name: nft.product_name,
+            manufacturer: nft.manufacturer,
+            serial_number: nft.serial_number,
+            owner: recipient,
+            expiry_date: expiry_timestamp,
+        });
+
+        sui::transfer::transfer(nft, recipient);
+    }
+
     /// Transfer warranty NFT to a new owner
     public entry fun transfer_warranty(
         mut nft: WarrantyNFT,

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
+firebase-admin
+apscheduler
+requests
+pysui
+flask
+flask-cors

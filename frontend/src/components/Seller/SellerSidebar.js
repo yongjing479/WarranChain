@@ -10,46 +10,62 @@ import {
 } from "@mantine/core";
 import {
   IconShield,
-  IconTransfer,
+  IconDevices,
+  IconPhone,
+  IconDeviceDesktop,
+  IconDeviceTablet,
   IconLogout,
   IconChevronDown,
   IconChevronRight,
-  IconLeaf,
   IconSettings,
+  IconLeaf,
 } from "@tabler/icons-react";
 
-const BuyerSidebar = ({ activeTab, setActiveTab }) => {
+const SellerSidebar = ({ activeTab, setActiveTab }) => {
   const [expandedItems, setExpandedItems] = React.useState({
-    "product-ownership": true,
+    "product-models": true,
+    "business-metrics": false,
   });
 
   const sidebarData = [
     {
       label: "Dashboard",
       icon: IconShield,
-      link: "warranty-list",
+      link: "dashboard",
     },
     {
-      label: "Product Ownership",
-      icon: IconTransfer,
-      link: "product-ownership",
+      label: "Product Categories",
+      icon: IconDevices,
+      link: "product-categories",
       hasChildren: true,
       children: [
         {
-          label: "Overview",
-          link: "ownership-overview",
+          label: "Phones & Gadgets",
+          link: "phones-gadgets",
         },
         {
-          label: "Transfer NFT",
-          link: "transfer-nft",
+          label: "Refrigerators",
+          link: "refrigerators",
         },
         {
-          label: "Transferred NFTs",
-          link: "transferred",
+          label: "Air Conditioners",
+          link: "air-conditioners",
         },
         {
-          label: "Received NFTs",
-          link: "received",
+          label: "Fans & Cooling",
+          link: "fans-cooling",
+        },
+        {
+          label: "Televisions",
+          link: "televisions",
+        },
+        {
+          label: "Washing Machines",
+          link: "washing-machines",
+        },
+        {
+          label: "Kitchen Appliances",
+          link: "kitchen-appliances",
         },
       ],
     },
@@ -57,6 +73,7 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
       label: "Sustainable Impact",
       icon: IconLeaf,
       link: "sustainability",
+      hasChildren: false,
     },
     {
       label: "Settings",
@@ -213,4 +230,4 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
   );
 };
 
-export default BuyerSidebar;
+export default SellerSidebar;
