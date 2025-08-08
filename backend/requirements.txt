@@ -5,3 +5,5 @@ firebase-admin
 apscheduler
 requests
 pysui
+flask
+flask-cors

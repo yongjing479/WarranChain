@@ -20,11 +20,12 @@ function App() {
             <Routes>
               <Route path="/" element={<BuyerDashboard />} />
               <Route path="/seller" element={<SellerDashboard />} />
-            <Route
-              path="/verify/:warrantyId"
-              element={<PublicWarrantyDetails />}
-            />
+              <Route
+                path="/verify/:warrantyId"
+                element={<PublicWarrantyDetails />}
+              />
             </Routes>
+          
           </div>
         </Router>
       </MockWalletProvider>
