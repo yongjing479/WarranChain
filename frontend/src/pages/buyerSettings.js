@@ -81,38 +81,6 @@ const BuyerSettings = () => {
           </Grid.Col>
         </Grid>
       </Paper>
-
-      <Paper shadow="xs" p="md">
-        <Title order={4} mb="md">
-          Sustainability Preferences
-        </Title>
-        <Grid>
-          <Grid.Col span={4}>
-            <TextInput
-              label="E-waste Prevention Goal (kg)"
-              placeholder="100"
-              defaultValue="100"
-              mb="md"
-            />
-          </Grid.Col>
-          <Grid.Col span={4}>
-            <TextInput
-              label="CO2 Reduction Goal (tons)"
-              placeholder="2"
-              defaultValue="2"
-              mb="md"
-            />
-          </Grid.Col>
-          <Grid.Col span={4}>
-            <TextInput
-              label="Local Business Support Goal"
-              placeholder="5"
-              defaultValue="5"
-              mb="md"
-            />
-          </Grid.Col>
-        </Grid>
-      </Paper>
     </Container>
   );
 };

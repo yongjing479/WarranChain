@@ -6,6 +6,7 @@ import {
   UnstyledButton,
   ActionIcon,
   Collapse,
+  Image,
 } from "@mantine/core";
 import {
   IconShield,
@@ -36,22 +37,18 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
       children: [
         {
           label: "Overview",
-          icon: IconShield,
           link: "ownership-overview",
         },
         {
           label: "Transfer NFT",
-          icon: IconTransfer,
           link: "transfer-nft",
         },
         {
           label: "Transferred NFTs",
-          icon: IconTransfer,
           link: "transferred",
         },
         {
           label: "Received NFTs",
-          icon: IconTransfer,
           link: "received",
         },
       ],
@@ -132,10 +129,9 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
                   marginBottom: "4px",
                 }}
               >
-                <Group gap="sm">
-                  <child.icon size={16} />
-                  <Text size="sm">{child.label}</Text>
-                </Group>
+                <Text size="sm" style={{ paddingLeft: "8px" }}>
+                  {child.label}
+                </Text>
               </UnstyledButton>
             ))}
           </Box>
@@ -157,10 +153,13 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
       }}
     >
       <Group mb="xl">
-        <IconShield size={28} color="#228be6" />
-        <Text size="xl" fw={700} c="#228be6">
-          WarranChain
-        </Text>
+        <Image
+          src="/WarranChain_Logo_latest.png"
+          alt="WarranChain"
+          width={350}
+          height={70}
+          fit="contain"
+        />
       </Group>
 
       <Box style={{ flex: 1 }}>{sidebarData.map(renderNavItem)}</Box>
