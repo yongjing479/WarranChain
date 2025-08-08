@@ -17,11 +17,17 @@ import {
   IconLeaf,
   IconSettings,
 } from "@tabler/icons-react";
+import { useEnoki } from "../../components/EnokiContext";
+import { useNavigate } from "react-router-dom";
 
 const BuyerSidebar = ({ activeTab, setActiveTab }) => {
   const [expandedItems, setExpandedItems] = React.useState({
     "product-ownership": true,
   });
+  const { logout } = useEnoki();
+  const navigate = useNavigate();
+
+
 
   const sidebarData = [
     {
@@ -177,6 +183,10 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
           cursor: "pointer",
           color: "red",
           transition: "background-color 0.2s",
+        }}
+        onClick={() => {
+          logout();
+          navigate("/"); 
         }}
         onMouseEnter={(e) =>
           (e.currentTarget.style.backgroundColor = "#fff5f5")

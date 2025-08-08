@@ -9,11 +9,7 @@ import BuyerDashboard from "./pages/BuyerDashboard.js";
 import SellerDashboard from "./pages/SellerDashboard.js";
 import PublicWarrantyDetails from "./pages/PublicWarrantyDetails.js";
 import { MockWalletProvider } from "./contexts/MockWalletContext.js";
-
-import BuyerDashboard from "./pages/BuyerDashboard";
-import PublicWarrantyDetails from "./pages/PublicWarrantyDetails";
 import LoginPage from "./pages/LoginPage";
-import SellerDashboard from "./pages/SellerDashboard";
 import AuthCallBack from "./pages/AuthCallBack";
 import { EnokiProvider } from "./components/EnokiContext";
 import { SuiClientProvider } from "./SuiClientProvider"; 
