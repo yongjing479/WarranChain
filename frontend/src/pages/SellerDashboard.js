@@ -12,6 +12,7 @@ import {
   Card,
   Select,
   Center,
+  Loader,
 } from "@mantine/core";
 import {
   IconPlus,
@@ -33,17 +34,27 @@ import URLModal from "../components/Buyer/URLModal";
 import SellerWarrantyDetailsModal from "../components/Seller/SellerWarrantyDetailsModal";
 import SellerChatWidget from "../components/Seller/SellerChatWidget";
 import SellerSustainabilityDashboard from "./sellerSustainabilityDashhboard";
+// ✅ FIX: Import SellerSettings as a component, not a function
+import SellerSettings from "./SellerSettings";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
   formatDate,
 } from "../utils/warrantyUtils";
-import renderSettings from "./SellerSettings";
+// ❌ REMOVE: This line causes the problem
+// import renderSettings from "./SellerSettings";
+import { useWarranties } from "../hooks/useWarranties";
+import { useMockWallet } from "../contexts/MockWalletContext";
+import { SAMPLE_WARRANTY_DATA, fillFormWithSampleData } from "../utils/testHelpers";
 
 const SellerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [issueModalOpened, setIssueModalOpened] = useState(false);
+
+  // Blockchain integration
+  const { currentAccount, isConnected } = useMockWallet();
+  const { warranties, loading, error, mintTestWarranty } = useWarranties();
 
   // Modal states for QR, URL, and Details
   const [showQRModal, setShowQRModal] = useState(false);
@@ -65,137 +76,8 @@ const SellerDashboard = () => {
     description: "",
   });
 
-  // Mock data for issued warranties - structured like buyer dashboard
-  const [issuedWarranties, setIssuedWarranties] = useState([
-    {
-      id: 1,
-      serialNo: "WR-2024-001",
-      productName: "Samsung Refrigerator",
-      productBrand: "Samsung",
-      productModel: "RF28T5001SR/AA",
-      purchaseDate: "2024-01-15",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x1234...5678",
-      issueDate: "2024-01-15",
-      purchaseLocation: "Best Buy SF",
-      description: "French Door Refrigerator with FlexZone",
-      repairHistory: [
-        {
-          id: 1,
-          date: "2024-03-20",
-          issue: "Ice maker repair",
-          status: "Completed",
-          cost: 0,
-        },
-      ],
-    },
-    {
-      id: 2,
-      serialNo: "WR-2024-002",
-      productName: "LG Air Conditioner",
-      productBrand: "LG",
-      productModel: "LP1419IVSM",
-      purchaseDate: "2024-02-10",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x5678...9012",
-      issueDate: "2024-02-10",
-      purchaseLocation: "Home Depot NYC",
-      description: "14,000 BTU Smart Wi-Fi Air Conditioner",
-      repairHistory: [],
-    },
-    {
-      id: 3,
-      serialNo: "WR-2024-003",
-      productName: "Dyson Fan",
-      productBrand: "Dyson",
-      productModel: "AM07",
-      purchaseDate: "2024-03-05",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x9012...3456",
-      issueDate: "2024-03-05",
-      purchaseLocation: "Target LA",
-      description: "Air Multiplier Tower Fan",
-      repairHistory: [],
-    },
-    {
-      id: 4,
-      serialNo: "WR-2024-004",
-      productName: "Sony TV",
-      productBrand: "Sony",
-      productModel: "XBR-65A9G",
-      purchaseDate: "2024-01-20",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x3456...7890",
-      issueDate: "2024-01-20",
-      purchaseLocation: "Best Buy Chicago",
-      description: "65-inch 4K OLED TV",
-      repairHistory: [],
-    },
-    {
-      id: 5,
-      serialNo: "WR-2024-005",
-      productName: "Whirlpool Washing Machine",
-      productBrand: "Whirlpool",
-      productModel: "WTW8127LC",
-      purchaseDate: "2024-02-25",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x7890...1234",
-      issueDate: "2024-02-25",
-      purchaseLocation: "Lowe's Miami",
-      description: "Top Load Washer with Load & Go",
-      repairHistory: [],
-    },
-    {
-      id: 6,
-      serialNo: "WR-2024-006",
-      productName: "KitchenAid Mixer",
-      productBrand: "KitchenAid",
-      productModel: "KSM150PSER",
-      purchaseDate: "2024-03-10",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x2345...6789",
-      issueDate: "2024-03-10",
-      purchaseLocation: "Williams-Sonoma Seattle",
-      description: "Professional 600 Series Stand Mixer",
-      repairHistory: [],
-    },
-    {
-      id: 7,
-      serialNo: "WR-2024-007",
-      productName: "iPhone 15 Pro",
-      productBrand: "Apple",
-      productModel: "iPhone 15 Pro 256GB",
-      purchaseDate: "2024-01-15",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x1234...5678",
-      issueDate: "2024-01-15",
-      purchaseLocation: "Apple Store SF",
-      description: "Latest iPhone with Pro camera system",
-      repairHistory: [
-        {
-          id: 1,
-          date: "2024-03-20",
-          issue: "Screen replacement",
-          status: "Completed",
-          cost: 0,
-        },
-      ],
-    },
-    {
-      id: 8,
-      serialNo: "WR-2024-008",
-      productName: "MacBook Air M2",
-      productBrand: "Apple",
-      productModel: "MacBook Air M2 512GB",
-      purchaseDate: "2024-02-10",
-      warrantyPeriod: 365,
-      buyerWalletAddress: "0x5678...9012",
-      issueDate: "2024-02-10",
-      purchaseLocation: "Apple Store NYC",
-      description: "Ultra-thin laptop with M2 chip",
-      repairHistory: [],
-    },
-  ]);
+  // Use blockchain data instead of mock data
+  const issuedWarranties = warranties;
 
   // Electronics brands for the form
   const electronicsBrands = [
@@ -281,38 +163,58 @@ const SellerDashboard = () => {
     setShowWarrantyDetailsModal(true);
   };
 
-  const handleIssueWarranty = () => {
-    const newWarranty = {
-      id: issuedWarranties.length + 1,
-      serialNo: `WR-2024-${String(issuedWarranties.length + 1).padStart(
-        3,
-        "0"
-      )}`,
-      ...warrantyForm,
-      // Format the buyer wallet address consistently
-      buyerWalletAddress: formatWalletAddress(warrantyForm.buyerWalletAddress),
-      issueDate: new Date().toISOString().split("T")[0],
-      warrantyPeriod: warrantyForm.warrantyPeriodDays,
-      repairHistory: [], // Initialize empty repair history
-    };
+  const handleIssueWarranty = async () => {
+    try {
+      if (!isConnected || !currentAccount) {
+        alert("Please connect your wallet first!");
+        return;
+      }
 
-    setIssuedWarranties((prev) => [newWarranty, ...prev]); // Add to top instead of bottom
-    setIssueModalOpened(false);
+      // Create warranty using blockchain service
+      await mintTestWarranty({
+        productName: warrantyForm.productName,
+        manufacturer: warrantyForm.productBrand,
+        serialNumber: warrantyForm.serialNumber,
+        warrantyPeriodDays: warrantyForm.warrantyPeriodDays,
+        buyerEmail: "", // Empty for now, will be used for ZK login
+        recipient: warrantyForm.buyerWalletAddress,
+        imageUrl: null, // Optional image URL
+      });
 
-    // Reset form
-    setWarrantyForm({
-      productName: "",
-      productBrand: "",
-      productModel: "",
-      serialNumber: "",
-      buyerWalletAddress: "",
-      warrantyPeriodDays: 365,
-      purchaseDate: "",
-      purchaseLocation: "",
-      description: "",
-    });
+      setIssueModalOpened(false);
 
-    alert("Warranty NFT issued successfully!");
+      // Reset form
+      setWarrantyForm({
+        productName: "",
+        productBrand: "",
+        productModel: "",
+        serialNumber: "",
+        buyerWalletAddress: "",
+        warrantyPeriodDays: 365,
+        purchaseDate: "",
+        purchaseLocation: "",
+        description: "",
+      });
+
+      alert(`✅ SUCCESS! Mock Warranty NFT Transaction Created!
+
+📝 WHAT HAPPENED:
+• Transaction built for Sui blockchain
+• Mock wallet simulated the process
+• Console shows transaction details
+
+🔍 NEXT STEPS FOR FULL TESTING:
+1. Check browser console for transaction logs
+2. Visit buyer dashboard to see if data syncs
+3. When ZK login is ready, this becomes real blockchain transaction
+
+⚠️ CURRENT LIMITATION: Using mock wallet - no real NFT created yet`);
+    } catch (error) {
+      console.error("Error issuing warranty:", error);
+      alert(`❌ Error issuing warranty: ${error.message}
+
+🔧 TIP: Check browser console for detailed error logs`);
+    }
   };
 
   // Filter warranties by product model
@@ -575,14 +477,37 @@ const SellerDashboard = () => {
           <Text c="dimmed">
             Manage your warranty business and track performance
           </Text>
+          {/* Wallet Status Indicator */}
+          <Group mt="sm">
+            <Badge 
+              color={isConnected ? "green" : "red"} 
+              variant="light"
+              size="lg"
+            >
+              {isConnected 
+                ? `🔗 Mock Wallet Connected: ${currentAccount?.address?.slice(0, 6)}...${currentAccount?.address?.slice(-4)}`
+                : "❌ Wallet Disconnected"
+              }
+            </Badge>
+          </Group>
         </div>
-        <Button
-          size="lg"
-          leftSection={<IconPlus size={18} />}
-          onClick={() => setIssueModalOpened(true)}
-        >
-          Issue New Warranty
-        </Button>
+        <Group>
+          <Button
+            variant="light"
+            color="orange"
+            onClick={() => fillFormWithSampleData(setWarrantyForm)}
+          >
+            🧪 Fill Test Data
+          </Button>
+          <Button
+            size="lg"
+            leftSection={<IconPlus size={18} />}
+            onClick={() => setIssueModalOpened(true)}
+            disabled={!isConnected}
+          >
+            Issue New Warranty
+          </Button>
+        </Group>
       </Group>
 
       {/* Seller-specific Stats Cards */}
@@ -685,6 +610,50 @@ const SellerDashboard = () => {
     </Container>
   );
 
+  // Handle loading and error states
+  if (loading) {
+    return (
+      <div style={{ display: "flex", height: "100vh" }}>
+        <SellerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <HeaderComponent
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <Center style={{ flex: 1 }}>
+            <Loader size="lg" />
+            <Text ml="md">Loading warranties from blockchain...</Text>
+          </Center>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: "flex", height: "100vh" }}>
+        <SellerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <HeaderComponent
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <Center style={{ flex: 1 }}>
+            <Paper p="xl" withBorder>
+              <Text color="red" size="lg" mb="md">
+                ⚠️ Blockchain Connection Error
+              </Text>
+              <Text mb="md">{error}</Text>
+              <Text size="sm" color="dimmed">
+                Note: Using mock wallet. Real blockchain data will show when ZK login is integrated.
+              </Text>
+            </Paper>
+          </Center>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <SellerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -702,7 +671,8 @@ const SellerDashboard = () => {
               issuedWarranties={issuedWarranties}
             />
           )}
-          {activeTab === "settings" && renderSettings()}
+          {/* ✅ FIX: Use SellerSettings as a component, not a function */}
+          {activeTab === "settings" && <SellerSettings />}
 
           {activeTab === "product-categories" && (
             <Container size="xl">

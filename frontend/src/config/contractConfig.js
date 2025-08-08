@@ -21,7 +21,7 @@ export const CURRENT_NETWORK = 'devnet';
 
 // Your deployed contract information
 export const CONTRACT_CONFIG = {
-  PACKAGE_ID: '0x49c585f34173bb5b4f529d1830a6803e6a51905a743bff0b0b2e9773313d819c',
+  PACKAGE_ID: '0x6d6728889ca99b00e2b98ee5e8491b2aded4d17d474af51d3420a5b5c2763b7f',
   MODULE_NAME: 'warranty_nft',
   PUBLISHER: '0x15da713cf950a2905d394a3120ae78c8af4b53a8be72a6a712c5aa56a6ba303d'
 };
