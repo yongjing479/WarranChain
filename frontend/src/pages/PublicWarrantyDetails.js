@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
 import {
   Container,
   Paper,
@@ -91,24 +92,81 @@ const PublicWarrantyDetails = () => {
     daysLeft: 45
   };
 
-  useEffect(() => {
-    const fetchWarrantyDetails = async () => {
-      try {
-        setLoading(true);
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // In real implementation, this would query the smart contract
-        setWarranty(mockWarrantyData);
-      } catch (err) {
-        setError("Failed to load warranty details. Please try again.");
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchWarrantyFromBlockchain = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Initialize Sui client
+      const suiClient = new SuiClient({
+        url: getFullnodeUrl('devnet'), // or 'testnet', 'mainnet'
+      });
+      
+      // Fetch NFT object from Sui blockchain
+      const object = await suiClient.getObject({
+        id: warrantyId,
+        options: {
+          showContent: true,
+          showDisplay: true,
+          showType: true,
+        },
+      });
+      
+      if (!object.data) {
+        throw new Error('Warranty NFT not found on blockchain');
       }
-    };
+      
+      // Parse the blockchain data into your warranty format
+      const warrantyData = parseBlockchainData(object.data);
+      
+      setWarranty(warrantyData);
+      
+    } catch (err) {
+      console.error('Error fetching from blockchain:', err);
+      setError(err.message || "Failed to load warranty from blockchain.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchWarrantyDetails();
-  }, [warrantyId]);
+  if (warrantyId) {
+    fetchWarrantyFromBlockchain();
+  } else {
+    setError("No warranty ID provided");
+    setLoading(false);
+  }
+}, [warrantyId]);
+
+const calculateDaysLeft = (expiryDate) => {
+  const expiry = new Date(expiryDate);
+  const now = new Date();
+  const timeDiff = expiry.getTime() - now.getTime();
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  return Math.max(0, daysDiff);
+};
+
+const parseBlockchainData = (blockchainData) => {
+  const content = blockchainData.content;
+  
+  return {
+    id: blockchainData.objectId,
+    productName: content.fields.product_name || 'Unknown Product',
+    manufacturer: content.fields.manufacturer || 'Unknown Manufacturer',
+    serialNumber: content.fields.serial_number || blockchainData.objectId,
+    purchaseDate: content.fields.purchase_date || new Date().toISOString(),
+    purchaseLocation: content.fields.purchase_location || 'Unknown Location',
+    warrantyPeriodDays: parseInt(content.fields.warranty_period) || 365,
+    expiryDate: content.fields.expiry_date || new Date(Date.now() + 365*24*60*60*1000).toISOString(),
+    owner: blockchainData.owner || '0x0000',
+    imageUrl: content.fields.image_url || 'https://via.placeholder.com/400',
+    description: content.fields.description || 'Digital warranty certificate',
+    warrantyStatus: content.fields.status || 'valid',
+    daysLeft: calculateDaysLeft(content.fields.expiry_date),
+    repairHistory: JSON.parse(content.fields.repair_history || '[]'),
+  };
+};
+
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -212,6 +270,8 @@ const PublicWarrantyDetails = () => {
       </Container>
     );
   }
+
+
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
