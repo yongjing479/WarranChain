@@ -6,6 +6,7 @@ import {
   UnstyledButton,
   ActionIcon,
   Collapse,
+  Image,
 } from "@mantine/core";
 import {
   IconShield,
@@ -152,10 +153,13 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
       }}
     >
       <Group mb="xl">
-        <IconShield size={28} color="#228be6" />
-        <Text size="xl" fw={700} c="#228be6">
-          WarranChain
-        </Text>
+        <Image
+          src="/WarranChain_Logo_latest.png"
+          alt="WarranChain"
+          width={350}
+          height={70}
+          fit="contain"
+        />
       </Group>
 
       <Box style={{ flex: 1 }}>{sidebarData.map(renderNavItem)}</Box>
