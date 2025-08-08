@@ -34,12 +34,15 @@ import URLModal from "../components/Buyer/URLModal";
 import SellerWarrantyDetailsModal from "../components/Seller/SellerWarrantyDetailsModal";
 import SellerChatWidget from "../components/Seller/SellerChatWidget";
 import SellerSustainabilityDashboard from "./sellerSustainabilityDashhboard";
+// ✅ FIX: Import SellerSettings as a component, not a function
+import SellerSettings from "./SellerSettings";
 import {
   calculateWarrantyInfo,
   getWarrantyStatusColor,
   formatDate,
 } from "../utils/warrantyUtils";
-import renderSettings from "./SellerSettings";
+// ❌ REMOVE: This line causes the problem
+// import renderSettings from "./SellerSettings";
 import { useWarranties } from "../hooks/useWarranties";
 import { useMockWallet } from "../contexts/MockWalletContext";
 import { SAMPLE_WARRANTY_DATA, fillFormWithSampleData } from "../utils/testHelpers";
@@ -668,7 +671,8 @@ const SellerDashboard = () => {
               issuedWarranties={issuedWarranties}
             />
           )}
-          {activeTab === "settings" && renderSettings()}
+          {/* ✅ FIX: Use SellerSettings as a component, not a function */}
+          {activeTab === "settings" && <SellerSettings />}
 
           {activeTab === "product-categories" && (
             <Container size="xl">
