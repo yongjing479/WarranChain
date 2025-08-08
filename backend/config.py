@@ -20,3 +20,6 @@ class Config:
     
     # App Configuration
     DEBUG = os.getenv("DEBUG", "False") == "True"
+
+    # Chatbot Configuration
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
