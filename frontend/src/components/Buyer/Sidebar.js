@@ -36,22 +36,18 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
       children: [
         {
           label: "Overview",
-          icon: IconShield,
           link: "ownership-overview",
         },
         {
           label: "Transfer NFT",
-          icon: IconTransfer,
           link: "transfer-nft",
         },
         {
           label: "Transferred NFTs",
-          icon: IconTransfer,
           link: "transferred",
         },
         {
           label: "Received NFTs",
-          icon: IconTransfer,
           link: "received",
         },
       ],
@@ -132,10 +128,9 @@ const BuyerSidebar = ({ activeTab, setActiveTab }) => {
                   marginBottom: "4px",
                 }}
               >
-                <Group gap="sm">
-                  <child.icon size={16} />
-                  <Text size="sm">{child.label}</Text>
-                </Group>
+                <Text size="sm" style={{ paddingLeft: "8px" }}>
+                  {child.label}
+                </Text>
               </UnstyledButton>
             ))}
           </Box>

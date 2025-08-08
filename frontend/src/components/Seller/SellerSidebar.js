@@ -40,52 +40,45 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
       children: [
         {
           label: "Phones & Gadgets",
-          icon: IconPhone,
           link: "phones-gadgets",
         },
         {
           label: "Refrigerators",
-          icon: IconDeviceDesktop,
           link: "refrigerators",
         },
         {
           label: "Air Conditioners",
-          icon: IconDeviceDesktop,
           link: "air-conditioners",
         },
         {
           label: "Fans & Cooling",
-          icon: IconDeviceTablet,
           link: "fans-cooling",
         },
         {
           label: "Televisions",
-          icon: IconPhone,
           link: "televisions",
         },
         {
           label: "Washing Machines",
-          icon: IconDeviceDesktop,
           link: "washing-machines",
         },
         {
           label: "Kitchen Appliances",
-          icon: IconPhone,
           link: "kitchen-appliances",
         },
       ],
     },
     {
-       label: "Sustainable Impact",
-       icon: IconLeaf, 
-       link: "sustainability",
-       hasChildren: false,
+      label: "Sustainable Impact",
+      icon: IconLeaf,
+      link: "sustainability",
+      hasChildren: false,
     },
     {
       label: "Settings",
       icon: IconSettings,
       link: "settings",
-    }
+    },
   ];
 
   const toggleExpanded = (link) => {
@@ -152,10 +145,9 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
                   marginBottom: "4px",
                 }}
               >
-                <Group gap="sm">
-                  <child.icon size={16} />
-                  <Text size="sm">{child.label}</Text>
-                </Group>
+                <Text size="sm" style={{ paddingLeft: "8px" }}>
+                  {child.label}
+                </Text>
               </UnstyledButton>
             ))}
           </Box>
