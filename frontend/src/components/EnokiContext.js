@@ -55,26 +55,25 @@ export const EnokiProvider = ({ children }) => {
         setTimeout(() => reject(new Error("Authentication timed out")), 120000);
       });
 
-      const { sub } = jwtDecode(jwt);
-      const enoki = new EnokiClient({
-        apiKey: process.env.REACT_APP_ENOKI_API_KEY,
-        config: { clientId, provider, network },
-      });
+    // Get zkLogin address
+    const enoki = new EnokiClient({
+      apiKey: process.env.REACT_APP_ENOKI_API_KEY,
+      config: { clientId, provider, network },
+    });
+    const latestEpoch = await fetchLatestEpoch();
+    const { addresses } = await enoki.getZkLoginAddresses({
+      jwt,
+      provider,
+      maxEpoch: latestEpoch + 2,
+    });
+    const userAddress = typeof addresses[0] === "string" ? addresses[0] : addresses[0].address;
+    if (!userAddress) throw new Error("Failed to derive zkLogin address");
 
-      // Fetch salt from backend
-      const saltResponse = await axios.post("http://localhost:3001/get-salt", { jwt });
-      const salt = saltResponse.data.salt;
-      if (!salt) throw new Error("Invalid salt received from backend");
-
-      // Get zkLogin address
-      const latestEpoch = await fetchLatestEpoch();
-      const { addresses } = await enoki.getZkLoginAddresses({
-        jwt,
-        provider,
-        maxEpoch: latestEpoch + 2,
-      });
-      const userAddress = addresses[0];
-      if (!userAddress) throw new Error("Failed to derive zkLogin address");
+    // Fetch salt from backend (always use this salt)
+    const saltResponse = await axios.post("http://localhost:3001/get-salt", { jwt, address: userAddress });
+    const salt = saltResponse.data.salt;
+    if (!salt) throw new Error("Invalid salt received from backend");
+    console.log("✅ Using salt from backend:", salt);
 
       // Persist ephemeral keypair in sessionStorage using Base64
     let ephemeralKeyPair;
