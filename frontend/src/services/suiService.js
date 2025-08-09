@@ -34,6 +34,7 @@ export const fetchUserWarranties = async (ownerAddress) => {
         showContent: true,
         showDisplay: true,
         showType: true,
+        // showOwner: true  // Commented out to simplify request
       }
     });
 
@@ -61,7 +62,6 @@ export const fetchUserWarranties = async (ownerAddress) => {
           expiryDate: formatTimestamp(fields.expiry_date),
           transferStatus: 'owned', // We'll determine this based on ownership
           owner: fields.owner,
-          imageUrl: fields.image_url,
           description: fields.description,
           repairHistory: fields.repair_history.map((repair, index) => ({
             id: index + 1,

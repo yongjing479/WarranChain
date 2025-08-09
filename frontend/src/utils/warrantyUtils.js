@@ -80,3 +80,37 @@ export const formatDateTime = (dateString) => {
     minute: "2-digit",
   });
 };
+
+// Normalize Sui address to 66 characters (0x + 64 hex chars)
+export const normalizeSuiAddress = (address) => {
+  if (!address) return address;
+  
+  // If it's already the correct length, return as is
+  if (address.length === 66 && address.startsWith('0x')) {
+    return address;
+  }
+  
+  // Remove 0x prefix if present
+  let cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
+  
+  // Pad to 64 characters with leading zeros
+  const paddedAddress = cleanAddress.padStart(64, '0');
+  
+  // Add 0x prefix back
+  return '0x' + paddedAddress;
+};
+
+// Format address for display (shortened version)
+export const formatSuiAddressForDisplay = (address) => {
+  if (!address) return 'Unknown Address';
+  
+  // Normalize first to ensure we have the full address
+  const fullAddress = normalizeSuiAddress(address);
+  
+  // Return shortened format for display
+  if (fullAddress.length >= 10) {
+    return `${fullAddress.slice(0, 6)}...${fullAddress.slice(-4)}`;
+  }
+  
+  return fullAddress;
+};

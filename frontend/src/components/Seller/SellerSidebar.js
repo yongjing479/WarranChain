@@ -20,12 +20,25 @@ import {
   IconSettings,
   IconLeaf,
 } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import { useEnoki } from "../EnokiContext";
 
 const SellerSidebar = ({ activeTab, setActiveTab }) => {
+  const { logout } = useEnoki();
+  const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = React.useState({
     "product-models": true,
     "business-metrics": false,
   });
+
+  const handleLogout = async () => {
+    try {
+      logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const sidebarData = [
     {
@@ -195,6 +208,7 @@ const SellerSidebar = ({ activeTab, setActiveTab }) => {
           color: "red",
           transition: "background-color 0.2s",
         }}
+        onClick={handleLogout}
         onMouseEnter={(e) =>
           (e.currentTarget.style.backgroundColor = "#fff5f5")
         }

@@ -1,28 +1,90 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { SuiClient } from "@mysten/sui.js/client";
+import { createContext, useContext } from "react";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
 
 const SuiClientContext = createContext(null);
 
-export const SuiClientProvider = ({ children }) => {
-  const [client, setClient] = useState(null);
-  const network = process.env.REACT_APP_SUI_NETWORK || "testnet";
+// Custom SuiClient that uses our backend proxy to avoid CORS issues
+class ProxySuiClient {
+  constructor(backendUrl) {
+    this.backendUrl = backendUrl;
+    this.network = process.env.REACT_APP_SUI_NETWORK || "testnet";
+    console.log("[ProxySuiClient] Initialized with backend:", backendUrl);
+  }
 
-  useEffect(() => {
-    const initializeClient = async () => {
-      const suiClient = new SuiClient({ url: `https://fullnode.${network}.sui.io:443` });
-      try {
-        // Health check
-        await suiClient.getLatestSuiSystemState();
-        setClient(suiClient);
-      } catch (error) {
-        console.error("Failed to connect to Sui node:", error);
-        // Fallback to another RPC node if available
+  async getOwnedObjects(params) {
+    console.log("[ProxySuiClient] getOwnedObjects called with:", params);
+    
+    try {
+      const response = await fetch(`${this.backendUrl}/get-owned-objects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    };
-    initializeClient();
-  }, [network]);
 
-  return <SuiClientContext.Provider value={client}>{children}</SuiClientContext.Provider>;
+      const data = await response.json();
+      console.log("[ProxySuiClient] getOwnedObjects response:", data);
+      return data;
+    } catch (error) {
+      console.error("[ProxySuiClient] getOwnedObjects error:", error);
+      throw error;
+    }
+  }
+
+  // Proxy other methods through the generic RPC proxy
+  async rpcCall(method, params) {
+    try {
+      const response = await fetch(`${this.backendUrl}/sui-rpc-proxy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method,
+          params
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error.message || 'RPC Error');
+      }
+      
+      return data.result;
+    } catch (error) {
+      console.error("[ProxySuiClient] RPC call error:", error);
+      throw error;
+    }
+  }
+}
+
+export const SuiClientProvider = ({ children }) => {
+  const network = process.env.REACT_APP_SUI_NETWORK || "testnet";
+  const suiUrl = getFullnodeUrl(network);
+  
+  console.log("[SuiClientProvider] Network:", network);
+  console.log("[SuiClientProvider] Sui URL:", suiUrl);
+  
+  // Use proxy client for CORS-free communication
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+  const suiClient = new ProxySuiClient(backendUrl);
+
+  return (
+    <SuiClientContext.Provider value={suiClient}>
+      {children}
+    </SuiClientContext.Provider>
+  );
 };
 
 export const useSuiClient = () => {

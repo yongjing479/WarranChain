@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button, Modal, Stack, TextInput, Group, Text, Notification } from '@mantine/core';
-import { useMockWallet } from '../contexts/MockWalletContext';
 import { mintTestWarranty } from '../services/suiService';
 import { IconPlus, IconCheck, IconX } from '@tabler/icons-react';
 
@@ -8,7 +7,6 @@ const TestMintButton = ({ onMintSuccess }) => {
   const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  const { isConnected, currentAccount, signAndExecuteTransactionBlock } = useMockWallet();
   
   const [formData, setFormData] = useState({
     productName: 'iPhone 15 Pro',
