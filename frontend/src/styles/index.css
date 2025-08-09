@@ -1,0 +1,378 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+  --gradient-colors: 
+    #c3e3ff,
+    #ffffff,
+    #c3e3ff,
+    #ffffff,
+    #c3e3ff,
+    #ffffff;
+}
+
+/* Global resets and typography */
+html, body, #root {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: rgb(20 24 35);
+}
+
+/* Animated wave-like gradient background */
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 80% at 10% 20%, rgba(195, 227, 255, 0.45), transparent 60%),
+    radial-gradient(80% 60% at 90% 30%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(70% 70% at 50% 90%, rgba(195, 227, 255, 0.40), transparent 60%),
+    linear-gradient(90deg, var(--gradient-colors));
+  background-size: 160% 160%, 140% 140%, 150% 150%, 300% 100%;
+  background-position: 0% 0%, 100% 20%, 50% 100%, 0% 50%;
+  animation: gradientWaves 28s ease-in-out infinite, gradientPulse 18s ease-in-out infinite;
+  filter: saturate(120%);
+}
+
+/* Optional subtle noise overlay for depth */
+.login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(1200px 400px at -10% 50%, rgba(255,255,255,0.25), transparent 60%),
+              radial-gradient(1200px 400px at 110% 50%, rgba(255,255,255,0.25), transparent 60%);
+  mix-blend-mode: overlay;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Multi-directional, free-flowing motion for layered gradients */
+@keyframes gradientWaves {
+  0% {
+    background-position: 0% 0%, 100% 20%, 50% 100%, 0% 50%;
+  }
+  25% {
+    background-position: 20% 30%, 80% 10%, 60% 80%, 30% 55%;
+  }
+  50% {
+    background-position: 80% 70%, 20% 40%, 40% 20%, 100% 50%;
+  }
+  75% {
+    background-position: 30% 60%, 70% 80%, 80% 30%, 70% 45%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 20%, 50% 100%, 0% 50%;
+  }
+}
+
+@keyframes gradientPulse {
+  0% {
+    background-size: 160% 160%, 140% 140%, 150% 150%, 300% 100%;
+  }
+  50% {
+    background-size: 170% 170%, 150% 150%, 160% 160%, 320% 110%;
+  }
+  100% {
+    background-size: 160% 160%, 140% 140%, 150% 150%, 300% 100%;
+  }
+}
+
+/* Center the card nicely */
+.login-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 6vh;
+  padding-bottom: 6vh;
+}
+
+/* Glassmorphism card */
+.login-card {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 1px 0 rgba(255,255,255,0.4) inset;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-radius: 24px;
+  width: min(1100px, 60vw);
+  height: 70vh;
+}
+
+.login-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+}
+
+/* Small refinements for Mantine components inside the card */
+.login-card .mantine-Title-root {
+  letter-spacing: 0.2px;
+}
+
+.login-card .mantine-Button-root {
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 480px) {
+  .login-logo { height: 44px; }
+}
+
+
+/* Custom Radio Group for userType */
+.provider-group, .user-type-group {
+  margin: 18px 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.provider-legend, .user-type-legend {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.provider-options, .user-type-options {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.radio-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.radio-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radio-control {
+  --size: 20px;
+  position: relative;
+  height: var(--size);
+  width: var(--size);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c3e3ff, #ffffff);
+  border: 2px solid transparent;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.radio-control::before {
+  content: "";
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  background: white;
+}
+
+.radio-control::after {
+  content: "";
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background: radial-gradient(75% 75% at 30% 30%, #5aa9ff, #a5d6ff);
+  transform: scale(0);
+  transition: transform 180ms ease;
+}
+
+.radio-option:hover .radio-control::after {
+  transform: scale(0.45);
+}
+
+.radio-input:checked + .radio-control::after {
+  transform: scale(1);
+}
+
+.radio-input:focus-visible + .radio-control {
+  outline: 2px solid #2a7de1;
+  outline-offset: 2px;
+}
+
+.radio-text {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 480px) {
+  .radio-option {
+    padding: 8px 12px;
+  }
+  .radio-text {
+    font-size: 14px;
+  }
+}
+
+/* Form block width for alignment */
+.form-block {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.auth-buttons { width: 100%; }
+
+/* Two-column grid for login */
+.login-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  height: 100%;
+}
+
+.left-panel, .right-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 28px;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.subtitle-text {
+  line-height: 1.5;
+}
+
+.auth-buttons {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.auth-button {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+.login-illustration {
+  position: relative;
+  height: 100%;
+  min-height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(195,227,255,0.7), rgba(255,255,255,0.7));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illustration-blob {
+  position: absolute;
+  width: 160%;
+  height: 160%;
+  background:
+    radial-gradient(40% 30% at 20% 30%, rgba(255,255,255,0.6), transparent 60%),
+    radial-gradient(30% 40% at 80% 40%, rgba(195,227,255,0.7), transparent 60%),
+    radial-gradient(35% 35% at 50% 80%, rgba(255,255,255,0.6), transparent 60%);
+  filter: blur(30px) saturate(120%);
+  animation: blobFloat 22s ease-in-out infinite;
+}
+
+.illustration-image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+@keyframes blobFloat {
+  0% { transform: translate(0%, 0%) rotate(0deg); }
+  25% { transform: translate(-4%, 3%) rotate(6deg); }
+  50% { transform: translate(4%, -3%) rotate(-4deg); }
+  75% { transform: translate(-2%, 2%) rotate(3deg); }
+  100% { transform: translate(0%, 0%) rotate(0deg); }
+}
+
+@media (max-width: 900px) {
+  .login-grid {
+    grid-template-columns: 1fr;
+  }
+  .right-panel { order: -1; }
+  .login-illustration { min-height: 220px; }
+  .login-card { width: calc(100% - 32px); height: auto; }
+}
+
+/* Page logo top-left */
+.page-logo {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+}
+
+.page-logo-img {
+  height: 44px;
+  width: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+}
+
+

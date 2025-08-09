@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Paper, Title, Text, Button, Group, Radio, LoadingOverlay, Notification } from "@mantine/core";
+import { Container, Paper, Title, Text, Button, Group, LoadingOverlay, Notification } from "@mantine/core";
 import { IconBrandGoogle, IconBrandGithub } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useEnoki } from "../components/EnokiContext";
@@ -32,47 +32,93 @@ const LoginPage = () => {
   };
 
   return (
-    <Container size="sm" py="xl">
-      <Paper shadow="md" p="xl" radius="md">
-        <Title ta="center" mb="md">WarranChain Login</Title>
-        <Text ta="center" c="dimmed" mb="xl">
-          Sign in with Google or GitHub to access your dashboard
-        </Text>
-        {error && (
-          <Notification color="red" title="Error" onClose={() => setError(null)} mb="md">
-            {error}
-          </Notification>
-        )}
-        <Group justify="center" mb="md">
-          <Radio.Group
-            value={userType}
-            onChange={setLocalUserType}
-            name="userType"
-            label="I am a:"
-            required
-          >
-            <Radio value="buyer" label="Buyer" />
-            <Radio value="seller" label="Seller" />
-          </Radio.Group>
-        </Group>
-        <Group justify="center">
-          <Button
-            leftSection={<IconBrandGoogle size={16} />}
-            size="lg"
-            onClick={() => handleLogin("google")}
-          >
-            Sign in with Google
-          </Button>
-          <Button
-            leftSection={<IconBrandGithub size={16} />}
-            size="lg"
-            onClick={() => handleLogin("github")}
-          >
-            Sign in with GitHub
-          </Button>
-        </Group>
-      </Paper>
-    </Container>
+    <div className="login-page">
+      <div className="page-logo" aria-hidden="true">
+        <img
+          src="/WarranChain_Logo_latest.png"
+          alt="WarranChain logo"
+          className="page-logo-img"
+        />
+      </div>
+      <Container fluid py="xl" className="login-container">
+        <Paper shadow="xl" p="xl" radius="xl" className="login-card">
+          <div className="login-grid">
+            <div className="left-panel">
+              <div className="form-block">
+                <Title mb="xs">Welcome back</Title>
+                <Text c="dimmed" mb="md" className="subtitle-text">
+                  Sign in with Google or GitHub to access your dashboard
+                </Text>
+
+                {error && (
+                  <Notification color="red" title="Error" onClose={() => setError(null)} mb="md">
+                    {error}
+                  </Notification>
+                )}
+
+                <div className="user-type-group" role="radiogroup" aria-label="I am a:">
+                  <div className="user-type-legend">I am a:</div>
+                  <div className="user-type-options">
+                    <label className="radio-option">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name="userType"
+                        value="buyer"
+                        checked={userType === "buyer"}
+                        onChange={(e) => setLocalUserType(e.target.value)}
+                        required
+                      />
+                      <span className="radio-control" aria-hidden="true"></span>
+                      <span className="radio-text">Buyer</span>
+                    </label>
+                    <label className="radio-option">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name="userType"
+                        value="seller"
+                        checked={userType === "seller"}
+                        onChange={(e) => setLocalUserType(e.target.value)}
+                      />
+                      <span className="radio-control" aria-hidden="true"></span>
+                      <span className="radio-text">Seller</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="auth-buttons">
+                  <Button
+                    leftSection={<IconBrandGoogle size={16} />}
+                    size="md"
+                    className="auth-button"
+                    fullWidth
+                    onClick={() => handleLogin("google")}
+                  >
+                    Sign in with Google
+                  </Button>
+                  <Button
+                    leftSection={<IconBrandGithub size={16} />}
+                    size="md"
+                    className="auth-button"
+                    fullWidth
+                    onClick={() => handleLogin("github")}
+                  >
+                    Sign in with GitHub
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="right-panel">
+              <div className="login-illustration">
+                <div className="illustration-blob" aria-hidden="true"></div>
+                <img src="/login_page.png" alt="Welcome illustration" className="illustration-image" />
+              </div>
+            </div>
+          </div>
+        </Paper>
+      </Container>
+    </div>
   );
 };
 
