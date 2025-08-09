@@ -14,9 +14,9 @@ class Config:
     SUI_RPC_URL = os.getenv("SUI_RPC_URL", "https://fullnode.devnet.sui.io:443")
     
     # Contract Configuration (matching frontend contractConfig.js)
-    NFT_PACKAGE_ID = os.getenv("NFT_PACKAGE_ID", "0x6d6728889ca99b00e2b98ee5e8491b2aded4d17d474af51d3420a5b5c2763b7f")
+    NFT_PACKAGE_ID = os.getenv("NFT_PACKAGE_ID", "0x4ec65b90d688d71fd9b02a25b7a55bc22834b3fff953568aed46066a9fff07bd")
     MODULE_NAME = "warranty_nft"
-    PUBLISHER = os.getenv("PUBLISHER", "0x15da713cf950a2905d394a3120ae78c8af4b53a8be72a6a712c5aa56a6ba303d")
+    PUBLISHER = os.getenv("PUBLISHER", "0x4290b769f1ed2d52615f0cfc2a63276d2ab480b0664e93caf7d61025a4245024")
     
     # Event types for sustainability tracking
     EVENT_TYPES = {

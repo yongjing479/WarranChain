@@ -15,7 +15,6 @@ import {
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX, IconDeviceFloppy } from "@tabler/icons-react";
 import { supabaseSellerService } from "../services/supabaseSellerService";
-import { useMockWallet } from "../contexts/MockWalletContext";
 
 const SellerSettings = () => {
   // ✅ Always call hooks at the top level - never conditionally
@@ -34,8 +33,9 @@ const SellerSettings = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ Always call this hook
-  const { currentAccount } = useMockWallet();
+  // Import currentAccount from useWarranties
+  const { currentAccount } = require("../hooks/useWarranties").useWarranties();
+
 
   // ✅ Calculate wallet address safely
   const walletAddress = currentAccount?.address || '0x15da713cf950a2905d394a3120ae78c8af4b53a8be72a6a712c5aa56a6ba303d';
