@@ -6,9 +6,12 @@ import jwksClient from "jwks-rsa";
 import { EnokiClient } from "@mysten/enoki";
 import { SuiClient } from "@mysten/sui.js/client";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import NodeCache from "node-cache";
 import Joi from "joi";
+import crypto from "crypto";
+
 
 const app = express();
 const cache = new NodeCache({ stdTTL: 60 }); // Cache for 1 minute
@@ -22,6 +25,11 @@ const enoki = new EnokiClient({ apiKey: process.env.ENOKI_API_KEY });
 const suiClient = new SuiClient({ url: process.env.SUI_RPC_URL || "https://fullnode.testnet.sui.io:443" });
 
 const PACKAGE_ID = "0x49c585f34173bb5b4f529d1830a6803e6a51905a743bff0b0b2e9773313d819c";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 // JWT validation middleware
 const client = jwksClient({ jwksUri: "https://www.googleapis.com/oauth2/v3/certs" });
@@ -55,19 +63,42 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Mock secure salt storage (replace with real database/vault)
-const mockSaltStorage = new Map();
-const generateSalt = () => Math.random().toString(36).substring(2, 15);
+// secure salt storage (replace with real database/vault)
 app.post("/get-salt", authMiddleware, async (req, res) => {
   const { sub } = req.user;
+  let address = req.body.address;
+  if (typeof address === "object" && address.address) {
+    address = address.address; // Extract string if object sent
+  }
+  console.log("Received request to get salt for sub:", sub, "and address:", address, "and req.body",req.body);
   try {
-    let salt = mockSaltStorage.get(sub);
-    if (!salt) {
-      salt = generateSalt();
-      mockSaltStorage.set(sub, salt);
+    let { data, error } = await supabase
+      .from("usersalts")
+      .select("salt")
+      .eq("sub", sub)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      console.error("Supabase select error:", error);
+      return res.status(500).json({ error: error.message });
     }
+
+    let salt = data?.salt;
+
+    if (!salt) {
+      salt = crypto.randomBytes(12).toString("base64");
+      const { error: insertError } = await supabase
+        .from("usersalts")
+        .insert([{ sub, salt, address }]);
+      if (insertError) {
+        console.error("Supabase insert error:", insertError);
+        return res.status(500).json({ error: insertError.message });
+      }
+    }
+
     res.json({ salt });
   } catch (error) {
+    console.error("Failed to fetch salt:", error);
     res.status(500).json({ error: "Failed to fetch salt: " + error.message });
   }
 });
