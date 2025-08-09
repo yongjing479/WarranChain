@@ -7,3 +7,4 @@ requests
 pysui
 flask
 flask-cors
+websockets
