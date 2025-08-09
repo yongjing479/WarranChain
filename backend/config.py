@@ -11,7 +11,7 @@ load_dotenv()
 
 class Config:
     # Sui Configuration
-    SUI_RPC_URL = os.getenv("SUI_RPC_URL", "https://fullnode.devnet.sui.io:443")
+    SUI_RPC_URL = os.getenv("SUI_RPC_URL", "https://fullnode.testnet.sui.io:443")
     
     # Contract Configuration (matching frontend contractConfig.js)
     NFT_PACKAGE_ID = os.getenv("NFT_PACKAGE_ID", "0x6d6728889ca99b00e2b98ee5e8491b2aded4d17d474af51d3420a5b5c2763b7f")
@@ -25,11 +25,12 @@ class Config:
         "REPAIR_LOGGED": f"{NFT_PACKAGE_ID}::{MODULE_NAME}::RepairLogged"
     }
     
-    # Firebase Configuration
-    FIREBASE_CRED_PATH = os.getenv("FIREBASE_CRED_PATH", "firebase-creds.json")
-    
+    # Supabase Configuration (server-side)
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "https://azkcdpratrgjijtmsujb.supabase.co")
+    SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6a2NkcHJhdHJnamlqdG1zdWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2Njc3MjAsImV4cCI6MjA3MDI0MzcyMH0.1kH21xU0hMqnK6pzDR-tLfVlghw-3GJf7hlb84USxbE")
+
     # App Configuration
     DEBUG = os.getenv("DEBUG", "False") == "True"
     
     # Chatbot Configuration
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")

@@ -12,6 +12,7 @@ import { MockWalletProvider } from "./contexts/MockWalletContext.js";
 import LoginPage from "./pages/LoginPage";
 import AuthCallBack from "./pages/AuthCallBack";
 import { EnokiProvider } from "./components/EnokiContext";
+import PushTokenRegistrar from "./components/PushTokenRegistrar";
 import { SuiClientProvider } from "./SuiClientProvider"; 
 
 const theme = createTheme();
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/seller" element={<SellerDashboard />} />
                 <Route path="/verify/:warrantyId" element={<PublicWarrantyDetails />} />
               </Routes>
+              <PushTokenRegistrar />
             </Router>
           </EnokiProvider>
         </SuiClientProvider>

@@ -222,7 +222,7 @@ const getMockWarranties = () => [
     productName: "MacBook Air M2",
     manufacturer: "Apple",
     purchaseDate: "2024-06-15",
-    warrantyPeriod: 730,
+    warrantyPeriod: 425,
     transferStatus: "transferred",
     transferredTo: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
     transferredDate: "2024-12-01",

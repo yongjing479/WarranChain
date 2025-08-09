@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  Box,
-  Group,
-  ActionIcon,
-  TextInput,
-  Avatar
-} from "@mantine/core";
-import { IconSearch, IconBell} from "@tabler/icons-react";
+import { Box, Group, TextInput, Avatar } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
+import NotificationsPopover from "./NotificationsPopover";
 
 const Header = ({ searchQuery, setSearchQuery }) => {
   return (
@@ -29,14 +24,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
             />
 
           <Group gap="lg">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label="Notifications"
-            >
-              <IconBell size={20} />
-            </ActionIcon>
+            <NotificationsPopover />
 
             <Avatar
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
