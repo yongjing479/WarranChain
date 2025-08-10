@@ -3,6 +3,8 @@ from flask_cors import CORS
 from services.chatbot import ChatService
 from services.sustainability import sustainability_service
 from services.seller_sustainability import seller_sustainability_service
+from services.notifications import register_token, check_expiring_warranties
+from services.notifications import create_in_app_notification
 import logging
 
 # Set up logging
@@ -45,6 +47,64 @@ def chat_handler():
 def health_check():
     """Health check endpoint."""
     return jsonify({"status": "healthy", "service": "chatbot"})
+
+@app.route('/api/push/register', methods=['POST'])
+def register_push_token():
+    data = request.get_json(silent=True) or {}
+    wallet_address = (data.get('wallet_address') or '').strip()
+    push_token = (data.get('push_token') or '').strip()
+    provider = (data.get('provider') or 'onesignal').strip()
+    if not wallet_address or not push_token:
+        return jsonify({"error": "wallet_address and push_token are required"}), 400
+    ok = register_token(wallet_address, push_token, provider)
+    if not ok:
+        return jsonify({"error": "failed to register token"}), 500
+    return jsonify({"success": True})
+
+@app.route('/api/push/run-expiry-check', methods=['POST'])
+def run_expiry_check():
+    days = int((request.get_json(silent=True) or {}).get('days', 7))
+    count = check_expiring_warranties(days)
+    return jsonify({"attempted": count})
+
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    from services.notifications import _get_supabase_client
+    wallet = (request.args.get('wallet_address') or '').strip()
+    if not wallet:
+        return jsonify({"error": "wallet_address is required"}), 400
+    sb = _get_supabase_client()
+    if not sb:
+        return jsonify({"error": "supabase not configured"}), 500
+    try:
+        resp = (
+            sb.table('notifications')
+              .select('*')
+              .eq('wallet_address', wallet)
+              .order('created_at', desc=True)
+              .limit(50)
+              .execute()
+        )
+        return jsonify(resp.data or [])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+@app.route('/api/notifications/mark-read', methods=['POST'])
+def mark_notifications_read():
+    from services.notifications import _get_supabase_client
+    data = request.get_json(silent=True) or {}
+    wallet = (data.get('wallet_address') or '').strip()
+    notif_ids = data.get('ids') or []
+    if not wallet or not isinstance(notif_ids, list) or not notif_ids:
+        return jsonify({"error": "wallet_address and ids[] required"}), 400
+    sb = _get_supabase_client()
+    if not sb:
+        return jsonify({"error": "supabase not configured"}), 500
+    try:
+        sb.table('notifications').update({'is_read': True}).in_('id', notif_ids).eq('wallet_address', wallet).execute()
+        return jsonify({"success": True})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
 # Sustainability Dashboard Endpoints
 @app.route('/api/sustainability/metrics', methods=['GET'])

@@ -1,4 +1,6 @@
 import React from "react";
+import NotificationsPopover from "./NotificationsPopover";
+=======
 import {
   Box,
   Group,
@@ -59,14 +61,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
             />
 
           <Group gap="lg">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label="Notifications"
-            >
-              <IconBell size={20} />
-            </ActionIcon>
+            <NotificationsPopover />
 
             <Menu shadow="md" width={200}>
               <Menu.Target>

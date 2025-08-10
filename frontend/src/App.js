@@ -8,6 +8,7 @@ import SellerDashboard from "./pages/SellerDashboard.js";
 import LoginPage from "./pages/LoginPage";
 import AuthCallBack from "./pages/AuthCallBack";
 import { EnokiProvider } from "./components/EnokiContext";
+import PushTokenRegistrar from "./components/PushTokenRegistrar";
 import { SuiClientProvider } from "./SuiClientProvider"; 
 import { getFullnodeUrl } from "@mysten/sui.js/client";
 
@@ -18,20 +19,26 @@ const networkConfig = {
 
 const App = () => {
   return (
-    <EnokiProvider>
-      <SuiClientProvider networks={networkConfig} defaultNetwork="testnet">
-        <MantineProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<LoginPage />} />
-              <Route path="/auth/callback" element={<AuthCallBack />} />
-              <Route path="/seller-dashboard" element={<SellerDashboard />} />
-              <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
-            </Routes>
-          </Router>
-        </MantineProvider>
-      </SuiClientProvider>
-    </EnokiProvider>
+    <MantineProvider theme={theme}>
+      <Notifications />
+      <MockWalletProvider>
+        <SuiClientProvider>
+          <EnokiProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<LoginPage />} />
+                <Route path="/buyer" element={<BuyerDashboard />} />
+                <Route path="/auth/callback" element={<AuthCallBack />} />
+                <Route path="/seller" element={<SellerDashboard />} />
+                <Route path="/verify/:warrantyId" element={<PublicWarrantyDetails />} />
+              </Routes>
+              <PushTokenRegistrar />
+            </Router>
+          </EnokiProvider>
+        </SuiClientProvider>
+      </MockWalletProvider>
+    </MantineProvider>
+
   );
 };
 
