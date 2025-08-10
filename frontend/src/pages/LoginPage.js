@@ -1,123 +1,220 @@
-import React, { useState } from "react";
-import { Container, Paper, Title, Text, Button, Group, LoadingOverlay, Notification } from "@mantine/core";
-import { IconBrandGoogle, IconBrandGithub } from "@tabler/icons-react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEnoki } from "../components/EnokiContext";
 
 const LoginPage = () => {
-  const { login, isAuthenticated, loading, setUserType } = useEnoki();
+  const { login, isAuthenticated, loading, setUserType, userType, completeAuthentication, logout } = useEnoki();
   const navigate = useNavigate();
-  const [userType, setLocalUserType] = useState("buyer");
+  const [selectedUserType, setSelectedUserType] = useState("buyer");
   const [error, setError] = useState(null);
+  const [needsUserType, setNeedsUserType] = useState(false);
 
-  if (loading) return <LoadingOverlay visible={true} overlayBlur={2} />;
-  if (isAuthenticated) {
-    navigate(userType === "seller" ? "/seller" : "/buyer");
+  // Check if user needs to select user type
+  useEffect(() => {
+    const token = localStorage.getItem('google_jwt') || localStorage.getItem('id_token');
+    const address = localStorage.getItem('zkLoginAddress');
+    const savedUserType = localStorage.getItem('userType');
+    
+    if (token && address && !savedUserType && !userType) {
+      console.log("[LoginPage] User has token and address but no user type - needs to complete auth");
+      setNeedsUserType(true);
+    }
+  }, [userType]);
+
+  if (loading) return <div>Loading...</div>;
+  
+  if (isAuthenticated && userType) {
+    navigate(userType === "seller" ? "/seller-dashboard" : "/buyer-dashboard");
     return null;
   }
 
   const handleLogin = async (provider) => {
-    if (!userType) {
+    if (!selectedUserType) {
       setError("Please select a user type (Buyer or Seller)");
       return;
     }
     try {
       setError(null);
-      setUserType(userType);
+      
+      // Store the selected user type temporarily
+      localStorage.setItem('pendingUserType', selectedUserType);
+      setUserType(selectedUserType);
+      
+      // Initiate OAuth login
       await login(provider);
-      navigate(userType === "seller" ? "/seller" : "/buyer");
+      // Navigation will happen after successful auth
     } catch (err) {
       setError(`Login failed: ${err.message}`);
     }
   };
 
+  const handleCompleteAuth = async () => {
+    if (!selectedUserType) {
+      setError("Please select a user type (Buyer or Seller)");
+      return;
+    }
+    
+    try {
+      setError(null);
+      await completeAuthentication(selectedUserType);
+      navigate(selectedUserType === "seller" ? "/seller-dashboard" : "/buyer-dashboard");
+    } catch (err) {
+      setError(err.message || "Failed to complete authentication");
+      console.error("Complete authentication error:", err);
+    }
+  };
+
+  const handleStartOver = () => {
+    logout();
+    setNeedsUserType(false);
+    setError(null);
+  };
+
   return (
-    <div className="login-page">
-      <div className="page-logo" aria-hidden="true">
+    <div style={{ padding: '2rem', textAlign: 'center', maxWidth: '400px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '2rem' }}>
         <img
           src="/WarranChain_Logo_latest.png"
           alt="WarranChain logo"
-          className="page-logo-img"
+          style={{ maxWidth: '200px', height: 'auto' }}
         />
       </div>
-      <Container fluid py="xl" className="login-container">
-        <Paper shadow="xl" p="xl" radius="xl" className="login-card">
-          <div className="login-grid">
-            <div className="left-panel">
-              <div className="form-block">
-                <Title mb="xs">Welcome back</Title>
-                <Text c="dimmed" mb="md" className="subtitle-text">
-                  Sign in with Google or GitHub to access your dashboard
-                </Text>
-
-                {error && (
-                  <Notification color="red" title="Error" onClose={() => setError(null)} mb="md">
-                    {error}
-                  </Notification>
-                )}
-
-                <div className="user-type-group" role="radiogroup" aria-label="I am a:">
-                  <div className="user-type-legend">I am a:</div>
-                  <div className="user-type-options">
-                    <label className="radio-option">
-                      <input
-                        className="radio-input"
-                        type="radio"
-                        name="userType"
-                        value="buyer"
-                        checked={userType === "buyer"}
-                        onChange={(e) => setLocalUserType(e.target.value)}
-                        required
-                      />
-                      <span className="radio-control" aria-hidden="true"></span>
-                      <span className="radio-text">Buyer</span>
-                    </label>
-                    <label className="radio-option">
-                      <input
-                        className="radio-input"
-                        type="radio"
-                        name="userType"
-                        value="seller"
-                        checked={userType === "seller"}
-                        onChange={(e) => setLocalUserType(e.target.value)}
-                      />
-                      <span className="radio-control" aria-hidden="true"></span>
-                      <span className="radio-text">Seller</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="auth-buttons">
-                  <Button
-                    leftSection={<IconBrandGoogle size={16} />}
-                    size="md"
-                    className="auth-button"
-                    fullWidth
-                    onClick={() => handleLogin("google")}
-                  >
-                    Sign in with Google
-                  </Button>
-                  <Button
-                    leftSection={<IconBrandGithub size={16} />}
-                    size="md"
-                    className="auth-button"
-                    fullWidth
-                    onClick={() => handleLogin("github")}
-                  >
-                    Sign in with GitHub
-                  </Button>
-                </div>
-              </div>
+      
+      <h1>Welcome to WarranChain</h1>
+      
+      {needsUserType ? (
+        <>
+          <p>We found your Google account, but you need to select your account type to continue.</p>
+          
+          {error && (
+            <div style={{ color: 'red', marginBottom: '1rem', padding: '1rem', border: '1px solid red', borderRadius: '4px' }}>
+              {error}
             </div>
-            <div className="right-panel">
-              <div className="login-illustration">
-                <div className="illustration-blob" aria-hidden="true"></div>
-                <img src="/login_page.png" alt="Welcome illustration" className="illustration-image" />
-              </div>
+          )}
+
+          <div style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>I am a:</strong>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="buyer"
+                  checked={selectedUserType === "buyer"}
+                  onChange={(e) => setSelectedUserType(e.target.value)}
+                />
+                Buyer
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="seller"
+                  checked={selectedUserType === "seller"}
+                  onChange={(e) => setSelectedUserType(e.target.value)}
+                />
+                Seller
+              </label>
             </div>
           </div>
-        </Paper>
-      </Container>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <button
+              onClick={handleCompleteAuth}
+              style={{
+                backgroundColor: '#4285f4',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              Complete Setup
+            </button>
+            
+            <button
+              onClick={handleStartOver}
+              style={{
+                backgroundColor: '#666',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              Start Over
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p>Sign in with Google to access your dashboard</p>
+
+          {error && (
+            <div style={{ color: 'red', marginBottom: '1rem', padding: '1rem', border: '1px solid red', borderRadius: '4px' }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>I am a:</strong>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="buyer"
+                  checked={selectedUserType === "buyer"}
+                  onChange={(e) => setSelectedUserType(e.target.value)}
+                />
+                Buyer
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="seller"
+                  checked={selectedUserType === "seller"}
+                  onChange={(e) => setSelectedUserType(e.target.value)}
+                />
+                Seller
+              </label>
+            </div>
+          </div>
+
+          <button
+            onClick={() => handleLogin('google')}
+            style={{
+              backgroundColor: '#4285f4',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              margin: '0 auto',
+              marginBottom: '1rem'
+            }}
+          >
+            🔑 Sign in with Google
+          </button>
+
+          <p style={{ fontSize: '0.9rem', color: '#666' }}>
+            By signing in, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </>
+      )}
     </div>
   );
 };

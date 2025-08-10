@@ -1,208 +1,300 @@
-import React, { createContext, useContext, useState } from "react";
-import { EnokiClient } from "@mysten/enoki";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
-import { getZkLoginSignature, jwtToAddress } from "@mysten/sui.js/zklogin";
-import { jwtDecode } from "jwt-decode";
-import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
-import axios from "axios";
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { EnokiClient } from '@mysten/enoki';
 
-// Define context interface for better type safety
-// @typedef {{ login: (provider: string) => Promise<void>, logout: () => void, address: string | null, userType: "buyer" | "seller" | null, setUserType: (type: "buyer" | "seller") => void, signer: any | null, balance: number | null, loading: boolean, isAuthenticated: boolean }} EnokiContextType
-const EnokiContext = createContext();
-
-const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+const EnokiContext = createContext(null);
 
 export const EnokiProvider = ({ children }) => {
-  const [address, setAddress] = useState(null);
+  // State for authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading to check existing auth
   const [userType, setUserType] = useState(null);
-  const [signer, setSigner] = useState(null);
-  const [balance, setBalance] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  // Validate environment variables
-  if (!process.env.REACT_APP_GOOGLE_CLIENT_ID || !process.env.REACT_APP_ENOKI_API_KEY) {
-    throw new Error("Missing required environment variables: REACT_APP_GOOGLE_CLIENT_ID or REACT_APP_ENOKI_API_KEY");
-  }
+  // Initialize EnokiClient with your API key
+  const enokiClient = useMemo(() => new EnokiClient({
+    apiKey: process.env.REACT_APP_ENOKI_API_KEY, // Obtain from Mysten Labs
+  }), []);
 
-  const login = async (provider = "google") => {
+  // Check for existing authentication on mount
+  useEffect(() => {
+    const checkExistingAuth = async () => {
+      const token = localStorage.getItem('google_jwt') || localStorage.getItem('id_token');
+      const address = localStorage.getItem('zkLoginAddress');
+      const savedUserType = localStorage.getItem('userType');
+      
+      console.log("[EnokiContext] Checking existing auth:", { 
+        hasToken: !!token, 
+        hasAddress: !!address, 
+        userType: savedUserType 
+      });
+      
+      // If we have a token but no address, try to create the wallet
+      if (token && !address) {
+        console.log("[EnokiContext] Found incomplete auth state - creating wallet...");
+        try {
+          // Extract email from JWT
+          const jwtPayload = JSON.parse(atob(token.split('.')[1]));
+          const userEmail = jwtPayload.email;
+          
+          // Create wallet using backend API
+          const walletResponse = await fetch("http://localhost:3001/get-address-from-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: userEmail }),
+          });
+          console.log("[EnokiContext] Wallet response :", walletResponse);
+          if (walletResponse.ok) {
+            const walletData = await walletResponse.json();
+            const walletAddress = walletData.address;
+            
+            console.log("[EnokiContext] Wallet created successfully:", walletAddress);
+            localStorage.setItem('zkLoginAddress', walletAddress);
+            
+            setIsAuthenticated(true);
+            if (savedUserType) {
+              setUserType(savedUserType);
+            }
+          } else {
+            console.error("[EnokiContext] Failed to create wallet:", walletResponse.status);
+          }
+        } catch (error) {
+          console.error("[EnokiContext] Error creating wallet:", error);
+        }
+      } else if (token && address) {
+        setIsAuthenticated(true);
+        if (savedUserType) {
+          setUserType(savedUserType);
+        }
+      }
+      setLoading(false);
+    };
+
+    checkExistingAuth();
+  }, []);
+
+  // Login function
+  const login = async (provider) => {
     setLoading(true);
     try {
-      const clientId = process.env[`REACT_APP_${provider.toUpperCase()}_CLIENT_ID`];
-      if (!clientId) throw new Error(`Client ID for ${provider} not configured`);
-      const network = "testnet";
-      const authUrl = provider === "google"
-        ? `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=id_token&scope=openid%20email&redirect_uri=${window.location.origin}/auth/callback&nonce=${Date.now()}`
-        : `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email&redirect_uri=${window.location.origin}/auth/callback`;
+      console.log("[EnokiContext] Starting login with provider:", provider);
+      console.log("[EnokiContext] Current userType:", userType);
+      
+      // Store the user type for the callback to use
+      if (userType) {
+        localStorage.setItem('pendingUserType', userType);
+        console.log("[EnokiContext] Stored pending userType:", userType);
+      }
+      
+      // Generate OAuth URL for Google login (keeping your existing logic)
+      if (provider === 'google') {
+        const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+        const REDIRECT_URL = 'http://localhost:3000/auth/callback';
+        
+        const nonce = Array.from(window.crypto.getRandomValues(new Uint8Array(20)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&response_type=id_token&redirect_uri=${encodeURIComponent(REDIRECT_URL)}&scope=openid%20email&nonce=${nonce}`;
 
-      // Open popup
-      const authWindow = window.open(authUrl, "Login with " + provider, "width=500,height=600");
-      if (!authWindow) throw new Error("Popup blocked. Please allow popups and try again.");
-
-      // Listen for message from popup
-      const jwt = await new Promise((resolve, reject) => {
-        function handleMessage(event) {
-          if (event.origin !== window.location.origin) return;
-          if (event.data.idToken) {
-            window.removeEventListener("message", handleMessage);
-            resolve(event.data.idToken);
-          } else if (event.data.error) {
-            window.removeEventListener("message", handleMessage);
-            reject(new Error(event.data.error));
-          }
-        }
-        window.addEventListener("message", handleMessage);
-        // Timeout after 2 minutes
-        setTimeout(() => reject(new Error("Authentication timed out")), 120000);
-      });
-
-      const { sub } = jwtDecode(jwt);
-      const enoki = new EnokiClient({
-        apiKey: process.env.REACT_APP_ENOKI_API_KEY,
-        config: { clientId, provider, network },
-      });
-
-      // Fetch salt from backend
-      const saltResponse = await axios.post("http://localhost:3001/get-salt", { jwt });
-      const salt = saltResponse.data.salt;
-      if (!salt) throw new Error("Invalid salt received from backend");
-
-      // Get zkLogin address
-      const latestEpoch = await fetchLatestEpoch();
-      const { addresses } = await enoki.getZkLoginAddresses({
-        jwt,
-        provider,
-        maxEpoch: latestEpoch + 2,
-      });
-      const userAddress = addresses[0];
-      if (!userAddress) throw new Error("Failed to derive zkLogin address");
-
-      // Persist ephemeral keypair in sessionStorage using Base64
-    let ephemeralKeyPair;
-    const storedKey = sessionStorage.getItem("ephemeralKeyPair");
-    if (!storedKey) {
-    ephemeralKeyPair = Ed25519Keypair.generate();
-    const secretKeyBytes = ephemeralKeyPair.getSecretKey();
-    const secretKeyBase64 = btoa(String.fromCharCode(...secretKeyBytes));
-    sessionStorage.setItem("ephemeralKeyPair", secretKeyBase64);
-    } else {
-    try {
-        const binaryString = atob(storedKey);
-        const secretKeyBytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
-        ephemeralKeyPair = Ed25519Keypair.fromSecretKey(secretKeyBytes);
-    } catch (e) {
-        console.error("Failed to parse stored ephemeral keypair:", e.message);
-        ephemeralKeyPair = Ed25519Keypair.generate();
-        const secretKeyBytes = ephemeralKeyPair.getSecretKey();
-        const secretKeyBase64 = btoa(String.fromCharCode(...secretKeyBytes));
-        sessionStorage.setItem("ephemeralKeyPair", secretKeyBase64);
-    }
-    }
-
-      // Create zkLogin signer
-      const zkSigner = {
-        async signTransactionBlock({ transactionBlock }) {
-          const { bytes, signature: userSignature } = await transactionBlock.sign({
-            signer: ephemeralKeyPair,
-            client: suiClient,
-          });
-
-          // Fetch ZKP proof with retry logic
-          let proofResponse;
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-              proofResponse = await axios.post("https://prover.api.mystenlabs.com/v1", {
-                jwt,
-                salt,
-                extendedEphemeralPublicKey: ephemeralKeyPair.getPublicKey().toSuiAddress(),
-                maxEpoch: latestEpoch + 2,
-              });
-              break;
-            } catch (error) {
-              console.error(`ZKP proof fetch attempt ${attempt} failed:`, error.message);
-              if (attempt === 3) throw new Error("Failed to fetch ZKP proof after retries");
-              await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
-            }
-          }
-
-          const zkSignature = getZkLoginSignature({
-            inputs: {
-              proof: proofResponse.data,
-              salt,
-              jwt,
-            },
-            maxEpoch: latestEpoch + 2,
-            userSignature,
-          });
-
-          return {
-            transactionBlockBytes: bytes,
-            signature: zkSignature,
-          };
-        },
-      };
-
-      setAddress(userAddress);
-      setSigner(zkSigner);
-      fetchBalance(userAddress);
+        console.log("[EnokiContext] Redirecting to OAuth URL");
+        // Redirect to OAuth provider
+        window.location.href = authUrl;
+      } else {
+        throw new Error(`Provider ${provider} not implemented yet`);
+      }
     } catch (error) {
-      console.error("Login failed:", error);
-      throw new Error(`Login failed: ${error.message}`);
-    } finally {
+      console.error("[EnokiContext] Login failed:", error);
       setLoading(false);
+      throw error;
     }
   };
 
-  const logout = () => {
-    setAddress(null);
-    setSigner(null);
-    setBalance(null);
-    setUserType(null);
-    sessionStorage.removeItem("ephemeralKeyPair");
-  };
-
-  const fetchBalance = async (addr) => {
-    try {
-      const res = await suiClient.getBalance({ owner: addr });
-      setBalance(Number(res.totalBalance) / 1e9);
-    } catch (err) {
-      console.error("Balance fetch failed:", err.message);
-      setBalance(0); // Fallback to avoid UI blocking
+  // Handle successful authentication (called after OAuth callback)
+  const handleAuthSuccess = (token, address) => {
+    console.log("[EnokiContext] Authentication successful");
+    setIsAuthenticated(true);
+    setLoading(false);
+    localStorage.setItem('google_jwt', token);
+    localStorage.setItem('zkLoginAddress', address);
+    if (userType) {
+      localStorage.setItem('userType', userType);
     }
   };
 
-  const fetchLatestEpoch = async () => {
+  // Add fetchSalt method here
+  const fetchSalt = async (jwt, address) => {
+    console.log("[fetchSalt] Starting request with:", { jwt: jwt ? "PRESENT" : "MISSING", address });
+    
     try {
-      const response = await axios.get("http://localhost:3001/latest-epoch");
-      const epoch = Number(response.data.epoch);
-      if (isNaN(epoch)) throw new Error("Invalid epoch received");
-      return epoch;
+      const response = await fetch("http://localhost:3001/get-salt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ jwt, address }),
+      });
+      
+      console.log("[fetchSalt] Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[fetchSalt] Request failed:", response.status, errorText);
+        throw new Error(`Failed to fetch salt: ${response.status} ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log("[fetchSalt] Success! Received salt:", data.salt ? "PRESENT" : "MISSING");
+      return data.salt;
     } catch (error) {
-      console.error("Failed to fetch latest epoch:", error.message);
-      throw new Error("Failed to fetch latest epoch");
+      console.error("[fetchSalt] Error:", error);
+      throw error;
     }
+  };
+
+  // Test connection function
+  const testConnection = async () => {
+    console.log("[frontend] Testing backend connection...");
+    try {
+      const response = await fetch("http://localhost:3001/test-connection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ test: "frontend-backend connection" }),
+      });
+      const data = await response.json();
+      console.log("[frontend] Backend response:", data);
+      return data;
+    } catch (error) {
+      console.error("[frontend] Connection test failed:", error);
+      throw error;
+    }
+  };
+
+  // Test salt fetch with mock data
+  const testSaltFetch = async () => {
+    console.log("[testSaltFetch] Testing salt fetch with mock JWT...");
+    
+    // Mock JWT for testing (this won't work for real auth, but will test the flow)
+    const mockJWT = "mock-jwt-token";
+    const mockAddress = "0x1234567890abcdef";
+    
+    try {
+      const salt = await fetchSalt(mockJWT, mockAddress);
+      console.log("[testSaltFetch] Success! Got salt:", salt);
+      return salt;
+    } catch (error) {
+      console.error("[testSaltFetch] Failed:", error);
+      throw error;
+    }
+  };
+
+  // Test salt fetch with real stored JWT (after login)
+  const testRealSaltFetch = async () => {
+    console.log("[testRealSaltFetch] Testing salt fetch with real stored JWT...");
+    
+    // Try to get real JWT from multiple possible storage locations
+    const storedJWT = localStorage.getItem('google_jwt') || 
+                      localStorage.getItem('id_token') || 
+                      sessionStorage.getItem('google_jwt') ||
+                      sessionStorage.getItem('id_token');
+    const storedAddress = localStorage.getItem('zkLoginAddress');
+    
+    console.log("[testRealSaltFetch] Checking all JWT storage locations:");
+    console.log("- localStorage.google_jwt:", localStorage.getItem('google_jwt') ? "FOUND" : "NOT FOUND");
+    console.log("- localStorage.id_token:", localStorage.getItem('id_token') ? "FOUND" : "NOT FOUND");
+    console.log("- sessionStorage.google_jwt:", sessionStorage.getItem('google_jwt') ? "FOUND" : "NOT FOUND");
+    console.log("- sessionStorage.id_token:", sessionStorage.getItem('id_token') ? "FOUND" : "NOT FOUND");
+    
+    if (!storedJWT) {
+      throw new Error("No JWT found in any storage location. Please login first with Google.");
+    }
+    
+    if (!storedAddress) {
+      throw new Error("No wallet address found. Please complete login flow first.");
+    }
+    
+    console.log("[testRealSaltFetch] Using stored JWT (first 20 chars):", storedJWT.substring(0, 20) + "...");
+    console.log("[testRealSaltFetch] JWT length:", storedJWT.length);
+    console.log("[testRealSaltFetch] Using stored address:", storedAddress);
+    
+    // Log the exact request body being sent
+    const requestBody = { jwt: storedJWT, address: storedAddress };
+    console.log("[testRealSaltFetch] Request body being sent:", {
+      jwt: requestBody.jwt ? "PRESENT (" + requestBody.jwt.length + " chars)" : "MISSING",
+      address: requestBody.address || "MISSING"
+    });
+    
+    try {
+      const salt = await fetchSalt(storedJWT, storedAddress);
+      console.log("[testRealSaltFetch] Success! Got real salt:", salt);
+      return salt;
+    } catch (error) {
+      console.error("[testRealSaltFetch] Failed:", error);
+      throw error;
+    }
+  };
+
+  // Complete authentication when user type is missing
+  const completeAuthentication = async (selectedUserType) => {
+    console.log("[completeAuthentication] Completing auth with user type:", selectedUserType);
+    
+    const token = localStorage.getItem('google_jwt') || localStorage.getItem('id_token');
+    const address = localStorage.getItem('zkLoginAddress');
+    
+    if (!token) {
+      throw new Error("No authentication token found. Please login again.");
+    }
+    
+    if (!address) {
+      throw new Error("No wallet address found. Please complete authentication.");
+    }
+    
+    // Store user type
+    localStorage.setItem('userType', selectedUserType);
+    setUserType(selectedUserType);
+    setIsAuthenticated(true);
+    
+    console.log("[completeAuthentication] Authentication completed successfully");
+    return { token, address, userType: selectedUserType };
+  };
+
+  // Logout function
+  const logout = () => {
+    console.log("[EnokiContext] Logging out...");
+    localStorage.removeItem('google_jwt');
+    localStorage.removeItem('id_token');
+    localStorage.removeItem('zkLoginAddress');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('pendingUserType');
+    setIsAuthenticated(false);
+    setUserType(null);
+    setLoading(false);
   };
 
   return (
-    <EnokiContext.Provider
-      value={{
-        login,
-        logout,
-        address,
-        userType,
-        setUserType,
-        signer,
-        balance,
-        loading,
-        isAuthenticated: !!address,
-      }}
-    >
+    <EnokiContext.Provider value={{ 
+      enokiClient, 
+      fetchSalt, 
+      testConnection, 
+      testSaltFetch, 
+      testRealSaltFetch,
+      completeAuthentication,
+      logout,
+      login,
+      isAuthenticated,
+      loading,
+      setUserType,
+      userType,
+      handleAuthSuccess
+    }}>
       {children}
     </EnokiContext.Provider>
   );
 };
 
 export const useEnoki = () => {
-  const ctx = useContext(EnokiContext);
-  if (!ctx) throw new Error("useEnoki must be used inside EnokiProvider");
-  return ctx;
+  const context = useContext(EnokiContext);
+  if (!context) {
+    throw new Error('useEnoki must be used within an EnokiProvider');
+  }
+  return context;
 };

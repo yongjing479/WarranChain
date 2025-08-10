@@ -24,7 +24,11 @@
     "nodemon": "^3.1.10"
   },
   "dependencies": {
+    "@mysten/seal": "^0.4.20",
+    "@mysten/zklogin": "^0.8.1",
+    "@supabase/supabase-js": "^2.54.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",

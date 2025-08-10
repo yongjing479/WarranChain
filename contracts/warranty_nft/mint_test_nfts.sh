@@ -6,10 +6,10 @@
 echo "🚀 Minting test warranty NFTs..."
 
 # Set your package ID
-PACKAGE_ID="0x6d6728889ca99b00e2b98ee5e8491b2aded4d17d474af51d3420a5b5c2763b7f"
+PACKAGE_ID="0x4ec65b90d688d71fd9b02a25b7a55bc22834b3fff953568aed46066a9fff07bd"
 
 # Test recipient address (your publisher address - matches mock wallet)
-RECIPIENT="0x15da713cf950a2905d394a3120ae78c8af4b53a8be72a6a712c5aa56a6ba303d"
+RECIPIENT="0x4290b769f1ed2d52615f0cfc2a63276d2ab480b0664e93caf7d61025a4245024"
 
 echo "📱 Minting iPhone 15 Pro..."
 sui client call \

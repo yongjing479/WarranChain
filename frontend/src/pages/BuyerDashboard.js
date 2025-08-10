@@ -44,7 +44,6 @@ import {
 } from "../utils/warrantyUtils";
 
 import { useWarranties } from "../hooks/useWarranties";
-import { useMockWallet } from "../contexts/MockWalletContext";
 import ChatWidget from "../components/Buyer/BuyerChatWidget";
 
 const BuyerDashboard = () => {
@@ -70,9 +69,11 @@ const BuyerDashboard = () => {
     refreshWarranties,
     isConnected,
     currentAccount,
+    connect,
+    disconnect,
+    mockAddresses,
+    switchAccount,
   } = useWarranties();
-
-  const { connect, disconnect, switchAccount, mockAddresses } = useMockWallet();
 
   // Filter warranties based on search query
   const filteredWarranties = warranties.filter(

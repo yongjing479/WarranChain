@@ -1,270 +1,289 @@
+
 import { useState, useEffect } from 'react';
-import { fetchUserWarranties, transferWarrantyNFT, addRepairEvent, mintTestWarranty } from '../services/suiService';
-import { useMockWallet } from '../contexts/MockWalletContext';
+import { useSuiClient } from '../SuiClientProvider';
+import { useEnoki } from '../components/EnokiContext';
+import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { CONTRACT_CONFIG, CONTRACT_FUNCTIONS } from '../config/contractConfig';
+import { normalizeSuiAddress } from '../utils/warrantyUtils';
+import axios from 'axios';
 
 export const useWarranties = () => {
-  const { currentAccount, isConnected, signAndExecuteTransactionBlock } = useMockWallet();
+  const suiClient = useSuiClient();
+  const { isAuthenticated } = useEnoki();
   const [warranties, setWarranties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch warranties when wallet connects or account changes
-  useEffect(() => {
-    if (isConnected && currentAccount?.address) {
-      loadWarranties();
-    } else {
+  // Get wallet connection state from localStorage and authentication
+  const zkLoginAddress = localStorage.getItem('zkLoginAddress');
+  const isConnected = isAuthenticated && !!zkLoginAddress;
+  const currentAccount = zkLoginAddress ? { address: zkLoginAddress } : null;
+
+  console.log("[useWarranties] Contract Package ID:", CONTRACT_CONFIG.PACKAGE_ID);
+  console.log("[useWarranties] Module Name:", CONTRACT_CONFIG.MODULE_NAME);
+  console.log("[useWarranties] zkLogin address from localStorage:", zkLoginAddress);
+  console.log("[useWarranties] Address length:", zkLoginAddress?.length);
+  console.log("[useWarranties] Is connected:", isConnected);
+
+  // Stub for signTransaction (replace with real wallet logic)
+  const signTransaction = async (tx) => {
+    // TODO: Integrate with wallet provider
+    // For now, return a mock signature
+    return "MOCK_SIGNATURE";
+  };
+
+  const refreshWarranties = async () => {
+    if (!isConnected || !currentAccount) {
+      console.log("[useWarranties] Skipping refresh - not connected or no account");
       setWarranties([]);
+      return;
     }
-  }, [isConnected, currentAccount?.address]);
 
-  const loadWarranties = async () => {
-    if (!currentAccount?.address) return;
-
+    console.log("[useWarranties] Refreshing warranties for address:", currentAccount.address);
     setLoading(true);
     setError(null);
-    
+
     try {
-      console.log('Loading warranties for:', currentAccount.address);
-      const userWarranties = await fetchUserWarranties(currentAccount.address);
-      console.log('Loaded warranties:', userWarranties);
+      console.log("[useWarranties] Fetching owned objects from Sui network...");
       
-      // If no real warranties found, use mock data for development
-      if (userWarranties.length === 0) {
-        console.log('🧪 No blockchain warranties found. Using mock data for testing UI functionality');
-        setWarranties(getMockWarranties());
+      // First try with a proper filter to see all objects
+      console.log("[useWarranties] Attempting to fetch all objects for address:", currentAccount.address);
+      
+      const objects = await suiClient.getOwnedObjects({
+        owner: currentAccount.address,
+        filter: null, // Explicitly set to null to get all objects
+        options: { 
+          showContent: true, 
+          showType: true,
+          // showOwner: true  // Commented out to simplify request
+        }
+      });
+
+      console.log("[useWarranties] Raw objects response:", objects);
+
+      if (objects && objects.data) {
+        console.log("[useWarranties] Total objects found:", objects.data.length);
+        
+        // Filter for warranty NFTs and process them
+        const warranties = objects.data
+          .filter(obj => {
+            // Check if this is a warranty NFT by looking at the type
+            const type = obj.data?.type;
+            const isWarrantyNFT = type && type.includes('WarrantyNFT');
+            console.log("[useWarranties] Object type:", type, "isWarrantyNFT:", isWarrantyNFT);
+            return obj.data && obj.data.content && isWarrantyNFT;
+          })
+          .map(obj => {
+            const content = obj.data.content.fields;
+            console.log("[useWarranties] Processing object content:", content);
+            return {
+              id: obj.data.objectId,
+              serialNo: content.serial_number || 'Unknown',
+              productName: content.product_name || 'Unknown Product',
+              manufacturer: content.manufacturer || 'Unknown Manufacturer',
+              warrantyPeriodDays: content.warranty_period_days || 0,
+              purchaseDate: content.purchase_date || Date.now(),
+              owner: content.owner || currentAccount.address,
+              status: 'Active'
+            };
+          });
+
+        console.log("[useWarranties] Processed warranties:", warranties);
+        setWarranties(warranties);
       } else {
-        setWarranties(userWarranties);
+        console.log("[useWarranties] No warranty data found");
+        setWarranties([]);
       }
+
     } catch (err) {
-      console.error('Error loading warranties:', err);
-      setError(err.message);
-      // For testing: Use mock data to show UI functionality
-      console.log('🧪 Using mock data due to blockchain error');
-      setWarranties(getMockWarranties());
+      console.error("[useWarranties] Error refreshing warranties:", err);
+      console.error("[useWarranties] Error details:", {
+        message: err.message,
+        stack: err.stack,
+        cause: err.cause,
+        name: err.name
+      });
+      
+      // Provide more specific error messages and prevent infinite loops
+      if (err.message?.includes("network") || err.message?.includes("connection")) {
+        setError("Network Connection Error - Check internet connection");
+      } else if (err.message?.includes("Invalid params")) {
+        setError("Smart Contract Error - Invalid parameters");
+      } else if (err.message?.includes("not found")) {
+        setError("Contract Not Found - Check deployment");
+      } else if (err.message?.includes("500")) {
+        setError("Backend Server Error - Check backend service");
+        console.warn("[useWarranties] Backend server error - stopping retry attempts");
+        // Set empty warranties instead of mock data to prevent confusion
+        setWarranties([]);
+        setLoading(false);
+        return; // Exit early to prevent mock data fallback
+      } else {
+        setError(`Blockchain Error: ${err.message || "Unknown error"}`);
+      }
+      
+      // Only use mock data for non-server errors
+      if (!err.message?.includes("500")) {
+        console.log("[useWarranties] Setting mock warranty data due to error");
+        setWarranties([
+          {
+            id: "mock-warranty-1",
+            serialNo: "MOCK001",
+            productName: "Mock iPhone 15",
+            manufacturer: "Mock Apple",
+            warrantyPeriodDays: 365,
+            purchaseDate: Date.now(),
+            owner: currentAccount.address,
+            status: "Active"
+          }
+        ]);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const mintTestWarranty = async (warrantyData = {}) => {
+    console.log("[useWarranties] Attempting to mint test warranty");
+    
+    if (!isConnected || !currentAccount) {
+      const error = 'Wallet not connected or no current account';
+      console.error("[useWarranties]", error);
+      throw new Error(error);
+    }
+
+    console.log("[useWarranties] Using sponsored transaction for address:", currentAccount.address);
+    console.log("[useWarranties] Warranty data:", warrantyData);
+
+    try {
+      // Get the JWT token from localStorage (stored as google_jwt or id_token)
+      const jwtToken = localStorage.getItem('google_jwt') || localStorage.getItem('id_token');
+      
+      if (!jwtToken) {
+        throw new Error('No authentication token found. Please log in again.');
+      }
+      
+      console.log("[useWarranties] Using JWT token for authentication");
+      
+      // Use the backend sponsored transaction endpoint instead of frontend signing
+      const response = await axios.post('http://localhost:3001/mint-nft-sponsored', {
+        jwt: jwtToken,
+        product: warrantyData.productName || 'Test Product',
+        manufacturer: warrantyData.manufacturer || 'Test Manufacturer', 
+        serialNumber: warrantyData.serialNumber || 'TEST123',
+        warrantyPeriod: warrantyData.warrantyPeriodDays || 365,
+        buyerEmail: warrantyData.buyerEmail || currentAccount.email || 'test@example.com'
+      });
+
+      console.log("[useWarranties] Warranty minted successfully:", response.data);
+      await refreshWarranties();
+      return response.data.result;
+    } catch (error) {
+      console.error("[useWarranties] Error minting test warranty:", error);
+      throw error;
     }
   };
 
   const transferWarranty = async (warranty, recipientAddress) => {
-    if (!isConnected) {
-      throw new Error('Wallet not connected');
-    }
+    const tx = new TransactionBlock();
+    tx.moveCall({
+      target: 'warranty_nft::warranty_nft::transfer_warranty',
+      arguments: [
+        tx.object(warranty.id),
+        tx.pure(recipientAddress),
+        tx.object('0x6'),
+      ],
+    });
 
-    try {
-      setLoading(true);
-      
-      // Create transfer transaction
-      const txb = await transferWarrantyNFT(
-        warranty.objectId || warranty.id, 
-        recipientAddress, 
-        currentAccount.address
-      );
+    const signature = await signTransaction(tx);
+    const result = await suiClient.executeTransactionBlock({
+      transactionBlock: tx.serialize(),
+      signature,
+      options: { showEffects: true },
+    });
 
-      // Execute transaction
-      const result = await signAndExecuteTransactionBlock({
-        transactionBlock: txb
-      });
-
-      console.log('Transfer successful:', result);
-
-      // Update local state
-      setWarranties(prevWarranties =>
-        prevWarranties.map(w =>
-          w.id === warranty.id
-            ? {
-                ...w,
-                transferStatus: 'transferred',
-                transferredTo: recipientAddress,
-                transferredDate: new Date().toISOString().split('T')[0]
-              }
-            : w
-        )
-      );
-
-      return result;
-    } catch (error) {
-      console.error('Transfer failed:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    await refreshWarranties();
+    return result;
   };
 
   const addRepair = async (warranty, repairDescription) => {
-    if (!isConnected) {
-      throw new Error('Wallet not connected');
-    }
+    const tx = new TransactionBlock();
+    tx.moveCall({
+      target: 'warranty_nft::warranty_nft::add_repair_event',
+      arguments: [
+        tx.object(warranty.id),
+        tx.pure(repairDescription),
+        tx.object('0x6'),
+      ],
+    });
 
-    try {
-      setLoading(true);
-      
-      // Create repair transaction
-      const txb = await addRepairEvent(
-        warranty.objectId || warranty.id,
-        repairDescription,
-        currentAccount.address
-      );
+    const signature = await signTransaction(tx);
+    const result = await suiClient.executeTransactionBlock({
+      transactionBlock: tx.serialize(),
+      signature,
+      options: { showEffects: true },
+    });
 
-      // Execute transaction
-      const result = await signAndExecuteTransactionBlock({
-        transactionBlock: txb
-      });
-
-      console.log('Repair event added:', result);
-
-      // Update local state
-      const newRepair = {
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-        issue: repairDescription,
-        status: 'Completed',
-        cost: 0
-      };
-
-      setWarranties(prevWarranties =>
-        prevWarranties.map(w =>
-          w.id === warranty.id
-            ? {
-                ...w,
-                repairHistory: [...w.repairHistory, newRepair]
-              }
-            : w
-        )
-      );
-
-      return result;
-    } catch (error) {
-      console.error('Add repair failed:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    await refreshWarranties();
+    return result;
   };
 
-  const refreshWarranties = () => {
-    loadWarranties();
+  // Mock wallet functions for compatibility
+  const connect = async () => {
+    // In a real implementation, this would trigger wallet connection
+    // For now, just refresh the state
+    console.log("[useWarranties] Connect called - checking existing auth state");
   };
 
-  // Mint new warranty NFT
-  const mintWarranty = async (warrantyData) => {
-    if (!isConnected) {
-      throw new Error('Wallet not connected');
-    }
-
-    try {
-      setLoading(true);
-      console.log('🏭 Minting warranty with data:', warrantyData);
-      
-      // Create mint transaction
-      const txb = await mintTestWarranty(warrantyData, warrantyData.recipient);
-      
-      console.log('📋 Transaction block created:', txb);
-      
-      // Execute transaction through mock wallet
-      const result = await signAndExecuteTransactionBlock({ 
-        transactionBlock: txb 
-      });
-      
-      console.log('✅ Mint transaction result:', result);
-      
-      // Refresh warranties to show the new one (in real scenario)
-      await loadWarranties();
-      
-      return result;
-    } catch (error) {
-      console.error('❌ Mint warranty failed:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+  const disconnect = async () => {
+    // In a real implementation, this would disconnect the wallet
+    // For now, we'll use the logout from EnokiContext
+    console.log("[useWarranties] Disconnect called - use logout from EnokiContext instead");
   };
 
-  return {
-    warranties,
-    loading,
-    error,
-    transferWarranty,
-    addRepair,
-    refreshWarranties,
-    mintTestWarranty: mintWarranty, // Expose mint function
-    // Status helpers
-    isConnected,
-    currentAccount
+  // Mock addresses for testing
+  const mockAddresses = zkLoginAddress ? [zkLoginAddress] : [];
+
+  // Function to switch account (mock for compatibility)
+  const switchAccount = (address) => {
+    console.log("[useWarranties] Switch account called with:", address);
+  };
+
+  useEffect(() => {
+    let timeoutId;
+    
+    console.log("[useWarranties] useEffect triggered - isConnected:", isConnected, "currentAccount:", currentAccount?.address);
+    
+    if (isConnected && currentAccount) {
+      console.log("[useWarranties] Scheduling refreshWarranties call...");
+      // Add a small delay to prevent rapid re-execution
+      timeoutId = setTimeout(() => {
+        refreshWarranties();
+      }, 100);
+    } else {
+      console.log("[useWarranties] Skipping refreshWarranties - not connected or no account");
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [currentAccount?.address, isConnected]); // Only depend on address string and connection status
+
+  return { 
+    warranties, 
+    loading, 
+    error, 
+    mintTestWarranty, 
+    transferWarranty, 
+    addRepair, 
+    refreshWarranties, 
+    isConnected, 
+    currentAccount,
+    connect,
+    disconnect,
+    mockAddresses,
+    switchAccount
   };
 };
-
-// Mock data fallback (same as your original data)
-const getMockWarranties = () => [
-  {
-    id: 1,
-    objectId: 'mock_object_1',
-    serialNo: "WR-2024-001",
-    productName: "iPhone 15 Pro",
-    manufacturer: "Apple",
-    purchaseDate: "2024-01-15",
-    warrantyPeriod: 365,
-    transferStatus: "owned",
-    repairHistory: [
-      {
-        id: 1,
-        date: "2024-03-20",
-        issue: "Screen replacement",
-        status: "Completed",
-        cost: 0,
-      },
-    ],
-  },
-  {
-    id: 2,
-    objectId: 'mock_object_2',
-    serialNo: "WR-2024-002",
-    productName: "MacBook Air M2",
-    manufacturer: "Apple",
-    purchaseDate: "2024-06-15",
-    warrantyPeriod: 425,
-    transferStatus: "transferred",
-    transferredTo: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    transferredDate: "2024-12-01",
-    repairHistory: [],
-  },
-  {
-    id: 3,
-    objectId: 'mock_object_3',
-    serialNo: "WR-2023-003",
-    productName: "Samsung Galaxy S24",
-    manufacturer: "Samsung",
-    purchaseDate: "2023-12-01",
-    warrantyPeriod: 365,
-    transferStatus: "received",
-    transferredFrom: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-    transferredDate: "2024-11-15",
-    repairHistory: [
-      {
-        id: 1,
-        date: "2024-02-10",
-        issue: "Battery replacement",
-        status: "Completed",
-        cost: 0,
-      },
-      {
-        id: 2,
-        date: "2024-05-15",
-        issue: "Charging port repair",
-        status: "In Progress",
-        cost: 50,
-      },
-    ],
-  },
-  {
-    id: 4,
-    objectId: 'mock_object_4',
-    serialNo: "WR-2024-004",
-    productName: "iPad Pro 12.9",
-    manufacturer: "Apple",
-    purchaseDate: "2024-09-20",
-    warrantyPeriod: 1095,
-    transferStatus: "owned",
-    repairHistory: [],
-  },
-];

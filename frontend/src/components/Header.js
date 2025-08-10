@@ -1,9 +1,46 @@
 import React from "react";
-import { Box, Group, TextInput, Avatar } from "@mantine/core";
-import { IconSearch } from "@tabler/icons-react";
 import NotificationsPopover from "./NotificationsPopover";
+=======
+import {
+  Box,
+  Group,
+  ActionIcon,
+  TextInput,
+  Avatar,
+  Menu,
+  Text,
+  Divider
+} from "@mantine/core";
+import { IconSearch, IconBell, IconLogout, IconUser, IconSettings } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import { useEnoki } from "./EnokiContext";
 
 const Header = ({ searchQuery, setSearchQuery }) => {
+  const { logout, userType } = useEnoki();
+  const navigate = useNavigate();
+
+  // Get wallet address from localStorage
+  const walletAddress = localStorage.getItem('zkLoginAddress');
+  const displayAddress = walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'No wallet';
+
+  const handleLogout = async () => {
+    try {
+      logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const handleSettings = () => {
+    if (userType === "seller") {
+      navigate("/seller-dashboard");
+      // You can add logic to switch to settings tab here
+    } else {
+      navigate("/buyer-dashboard");
+      // You can add logic to switch to settings tab here
+    }
+  };
   return (
     <Box
       style={{
@@ -26,11 +63,49 @@ const Header = ({ searchQuery, setSearchQuery }) => {
           <Group gap="lg">
             <NotificationsPopover />
 
-            <Avatar
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-              size="md"
-              radius="xl"
-            />
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Avatar
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                  size="md"
+                  radius="xl"
+                  style={{ cursor: "pointer" }}
+                />
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label>Account</Menu.Label>
+                <Menu.Item
+                  leftSection={<IconUser size={14} />}
+                >
+                  <div>
+                    <Text size="sm" fw={500}>
+                      {userType === "seller" ? "Seller Account" : "Buyer Account"}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {displayAddress}
+                    </Text>
+                  </div>
+                </Menu.Item>
+                
+                <Menu.Item
+                  leftSection={<IconSettings size={14} />}
+                  onClick={handleSettings}
+                >
+                  Settings
+                </Menu.Item>
+
+                <Divider />
+
+                <Menu.Item
+                  leftSection={<IconLogout size={14} />}
+                  onClick={handleLogout}
+                  color="red"
+                >
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Group>
         </Group>
       </div>

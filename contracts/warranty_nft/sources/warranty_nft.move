@@ -18,7 +18,6 @@ module warranty_nft::warranty_nft {
         expiry_date: u64,
         repair_history: vector<String>,
         owner: address,
-        image_url: Option<Url>,
         description: String,
     }
 
@@ -63,7 +62,6 @@ module warranty_nft::warranty_nft {
         let keys = vector[
             std::string::utf8(b"name"),
             std::string::utf8(b"description"),
-            std::string::utf8(b"image_url"),
             std::string::utf8(b"external_url"),
             std::string::utf8(b"project_url"),
             std::string::utf8(b"creator"),
@@ -72,7 +70,6 @@ module warranty_nft::warranty_nft {
         let values = vector[
             std::string::utf8(b"{product_name} Warranty"),
             std::string::utf8(b"Digital warranty NFT for {product_name} (S/N: {serial_number}). Manufacturer: {manufacturer}. Valid until {expiry_date}."),
-            std::string::utf8(b"{image_url}"),
             std::string::utf8(b"https://warranty-nft.app/warranty/{id}"),
             std::string::utf8(b"https://warranty-nft.app"),
             std::string::utf8(b"Warranty NFT Platform"),
@@ -96,7 +93,6 @@ module warranty_nft::warranty_nft {
         warranty_period_days: u64,
         buyer_email: vector<u8>, // For future zkLogin integration
         recipient: address,
-        image_url: Option<vector<u8>>,
         clock: &Clock,
         ctx: &mut sui::tx_context::TxContext
     ) {
@@ -107,12 +103,6 @@ module warranty_nft::warranty_nft {
         let purchase_timestamp = sui::clock::timestamp_ms(clock);
         let expiry_timestamp = purchase_timestamp + (warranty_period_days * 24 * 60 * 60 * 1000);
         
-        let parsed_image_url = if (std::option::is_some(&image_url)) {
-            std::option::some(url::new_unsafe_from_bytes(*std::option::borrow(&image_url)))
-        } else {
-            std::option::none()
-        };
-
         let description = std::string::utf8(b"Digital warranty certificate for authentic product verification and ownership tracking.");
 
         let nft = WarrantyNFT {
@@ -125,7 +115,6 @@ module warranty_nft::warranty_nft {
             expiry_date: expiry_timestamp,
             repair_history: std::vector::empty(),
             owner: recipient,
-            image_url: parsed_image_url,
             description,
         };
 
@@ -172,7 +161,6 @@ module warranty_nft::warranty_nft {
             expiry_date: expiry_timestamp,
             repair_history: std::vector::empty(),
             owner: recipient,
-            image_url: std::option::none(),
             description,
         };
 
@@ -261,7 +249,6 @@ module warranty_nft::warranty_nft {
         u64,    // expiry_date
         vector<String>, // repair_history
         address, // owner
-        Option<Url>, // image_url
         String   // description
     ) {
         (
@@ -273,7 +260,6 @@ module warranty_nft::warranty_nft {
             nft.expiry_date,
             nft.repair_history,
             nft.owner,
-            nft.image_url,
             nft.description
         )
     }

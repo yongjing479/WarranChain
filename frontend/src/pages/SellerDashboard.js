@@ -44,7 +44,6 @@ import {
 // ❌ REMOVE: This line causes the problem
 // import renderSettings from "./SellerSettings";
 import { useWarranties } from "../hooks/useWarranties";
-import { useMockWallet } from "../contexts/MockWalletContext";
 import { SAMPLE_WARRANTY_DATA, fillFormWithSampleData } from "../utils/testHelpers";
 
 const SellerDashboard = () => {
@@ -53,8 +52,14 @@ const SellerDashboard = () => {
   const [issueModalOpened, setIssueModalOpened] = useState(false);
 
   // Blockchain integration
-  const { currentAccount, isConnected } = useMockWallet();
-  const { warranties, loading, error, mintTestWarranty } = useWarranties();
+  const {
+    warranties,
+    loading,
+    error,
+    mintTestWarranty,
+    isConnected,
+    currentAccount,
+  } = useWarranties();
 
   // Modal states for QR, URL, and Details
   const [showQRModal, setShowQRModal] = useState(false);
@@ -178,7 +183,6 @@ const SellerDashboard = () => {
         warrantyPeriodDays: warrantyForm.warrantyPeriodDays,
         buyerEmail: "", // Empty for now, will be used for ZK login
         recipient: warrantyForm.buyerWalletAddress,
-        imageUrl: null, // Optional image URL
       });
 
       setIssueModalOpened(false);

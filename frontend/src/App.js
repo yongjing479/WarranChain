@@ -1,23 +1,23 @@
-// src/App.js
 import "./styles/App.css";
 import "@mantine/core/styles.css";
 import '@mantine/notifications/styles.css';
-import { MantineProvider, createTheme } from "@mantine/core";
-import { Notifications } from '@mantine/notifications';
+import { MantineProvider } from "@mantine/core";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BuyerDashboard from "./pages/BuyerDashboard.js";
 import SellerDashboard from "./pages/SellerDashboard.js";
-import PublicWarrantyDetails from "./pages/PublicWarrantyDetails.js";
-import { MockWalletProvider } from "./contexts/MockWalletContext.js";
 import LoginPage from "./pages/LoginPage";
 import AuthCallBack from "./pages/AuthCallBack";
 import { EnokiProvider } from "./components/EnokiContext";
 import PushTokenRegistrar from "./components/PushTokenRegistrar";
 import { SuiClientProvider } from "./SuiClientProvider"; 
+import { getFullnodeUrl } from "@mysten/sui.js/client";
 
-const theme = createTheme();
+// Configure Sui network
+const networkConfig = {
+  testnet: { url: getFullnodeUrl("testnet") },
+};
 
-function App() {
+const App = () => {
   return (
     <MantineProvider theme={theme}>
       <Notifications />
@@ -38,7 +38,8 @@ function App() {
         </SuiClientProvider>
       </MockWalletProvider>
     </MantineProvider>
+
   );
-}
+};
 
 export default App;
