@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/WarranChain/static/css/main.9cf050f9.css",
+    "main.js": "/WarranChain/static/js/main.c44ce154.js",
+    "index.html": "/WarranChain/index.html",
+    "main.9cf050f9.css.map": "/WarranChain/static/css/main.9cf050f9.css.map",
+    "main.c44ce154.js.map": "/WarranChain/static/js/main.c44ce154.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9cf050f9.css",
+    "static/js/main.c44ce154.js"
+  ]
+}
